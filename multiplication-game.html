@@ -1249,11 +1249,11 @@
   <div id="screen-mastery">
     <button class="back-btn" id="mastery-back-btn">← Back to Main</button>
     <h1>🏆 Mastery Test</h1>
-    <p class="subtitle">Pick ONE table to test. Zero errors = 1 pip. 5 pips = MASTERED!</p>
+    <p class="subtitle">Pick ONE table to test. Zero errors = 1 pip. 3 pips = MASTERED!</p>
 
     <div class="mastery-intro">
       Complete all 12 questions (×1–×12) with <strong>ZERO mistakes</strong> to earn a pip.<br>
-      Earn 5 pips on a table to prove you've truly mastered it!
+      Earn 3 pips on a table to prove you've truly mastered it!
     </div>
 
     <div class="mastery-table-grid" id="mastery-table-grid">
@@ -1265,9 +1265,7 @@
       <span class="mastery-pip"></span>
       <span class="mastery-pip"></span>
       <span class="mastery-pip"></span>
-      <span class="mastery-pip"></span>
-      <span class="mastery-pip"></span>
-      <span style="color:#c9a0ff;font-size:0.8rem;margin-left:6px;">0/5</span>
+      <span style="color:#c9a0ff;font-size:0.8rem;margin-left:6px;">0/3</span>
     </div>
 
     <button class="mastery-begin-btn" id="mastery-begin-btn" disabled>🏆 Begin Mastery Test</button>
@@ -2258,7 +2256,7 @@
       if (isMasteryMode && masteryTable && !masteryFailed && score === TOTAL) {
         // perfect mastery run — add pip (max 5)
         const current = (p.mastery && p.mastery[masteryTable]) || 0;
-        if (current < 5) {
+        if (current < 3) {
           updates.mastery = { ...p.mastery, [masteryTable]: current + 1 };
         } else {
           updates.mastery = { ...p.mastery };
@@ -2285,14 +2283,14 @@
 
       if (!masteryFailed && score === TOTAL) {
         masteryBanner.style.display = 'block';
-        if (pips >= 5) {
+        if (pips >= 3) {
           masteryBanner.innerHTML = `
             <div style="font-size:1.3rem;font-weight:bold;color:#34c759;margin-bottom:8px;">🎉 TABLE MASTERED!! 🎉</div>
-            <div style="color:#ffd200;">You've completed the ×${masteryTable} table 5 times perfectly! YOU ARE A MATH CHAMPION!!</div>`;
+            <div style="color:#ffd200;">You've completed the ×${masteryTable} table 3 times perfectly! YOU ARE A MATH CHAMPION!!</div>`;
         } else {
           masteryBanner.innerHTML = `
-            <div style="font-size:1.1rem;font-weight:bold;color:#ffd200;margin-bottom:8px;">🏆 Pip earned! ${pips}/5 on ×${masteryTable}</div>
-            <div style="color:#c9a0ff;">${5 - pips} more perfect run${5 - pips !== 1 ? 's' : ''} to master this table!</div>`;
+            <div style="font-size:1.1rem;font-weight:bold;color:#ffd200;margin-bottom:8px;">🏆 Pip earned! ${pips}/3 on ×${masteryTable}</div>
+            <div style="color:#c9a0ff;">${3 - pips} more perfect run${3 - pips !== 1 ? 's' : ''} to master this table!</div>`;
         }
         document.getElementById('result-message').textContent = '🌟 FLAWLESS!! Zero mistakes on the mastery test!!';
         document.getElementById('result-sub').textContent = 'Keep it up — you\'re becoming unstoppable!';
@@ -2361,7 +2359,7 @@
     const grid = document.getElementById('mastery-table-grid');
     grid.innerHTML = [2,3,4,5,6,7,8,9,10,11,12].map(n => {
       const pips = mastery[n] || 0;
-      const isMastered = pips >= 5;
+      const isMastered = pips >= 3;
       const isSelected = masterySelectedTable === n;
       return `
         <button class="mastery-table-btn ${isSelected ? 'selected' : ''} ${isMastered ? 'mastered' : ''}" data-mn="${n}">
@@ -2388,14 +2386,14 @@
     const pips = masterySelectedTable ? (mastery[masterySelectedTable] || 0) : 0;
     const row = document.getElementById('mastery-pip-preview');
     row.innerHTML = '';
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < 3; i++) {
       const pip = document.createElement('span');
       pip.className = 'mastery-pip' + (i < pips ? ' filled' : '');
       row.appendChild(pip);
     }
     const lbl = document.createElement('span');
     lbl.style.cssText = 'color:#c9a0ff;font-size:0.8rem;margin-left:6px;';
-    lbl.textContent = masterySelectedTable ? `${pips}/5` : '—';
+    lbl.textContent = masterySelectedTable ? `${pips}/3` : '—';
     row.appendChild(lbl);
   }
 
@@ -2413,7 +2411,7 @@
     document.getElementById('progress-name').textContent = p.name;
 
     const mastery = p.mastery || {};
-    const masteredCount = Object.values(mastery).filter(v => v >= 5).length;
+    const masteredCount = Object.values(mastery).filter(v => v >= 3).length;
 
     document.getElementById('progress-stats-badges').innerHTML = `
       <div class="stat-badge">
@@ -2433,15 +2431,15 @@
     const grid = document.getElementById('mastery-progress-grid');
     grid.innerHTML = [2,3,4,5,6,7,8,9,10,11,12].map(n => {
       const pips = mastery[n] || 0;
-      const isMastered = pips >= 5;
-      const pipHtml = Array.from({length:5}, (_,i) =>
+      const isMastered = pips >= 3;
+      const pipHtml = Array.from({length:3}, (_,i) =>
         `<div class="mp-pip ${isMastered ? 'mastered-all' : (i < pips ? 'filled' : '')}"></div>`
       ).join('');
       return `
         <div class="mp-row">
           <span class="mp-label">×${n}</span>
           <div class="mp-pips">${pipHtml}</div>
-          <span class="mp-status">${isMastered ? '🏆' : (pips > 0 ? '⭐'.repeat(pips > 3 ? 1 : 0) + `${pips}/5` : '')}</span>
+          <span class="mp-status">${isMastered ? '🏆' : (pips > 0 ? `${pips}/3` : '')}</span>
         </div>`;
     }).join('');
   }
