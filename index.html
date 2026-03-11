@@ -368,6 +368,39 @@
     }
     .study-btn:hover { transform: scale(1.05); box-shadow: 0 6px 24px rgba(0,240,255,0.5); }
 
+    /* ── On-screen numpad ── */
+    .numpad {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 18px;
+      max-width: 260px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .np-btn {
+      background: rgba(120,0,200,0.25);
+      border: 2px solid rgba(200,100,255,0.3);
+      color: white;
+      font-size: 1.6rem;
+      font-weight: bold;
+      padding: 16px 0;
+      border-radius: 14px;
+      cursor: pointer;
+      transition: all 0.12s;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    .np-btn:hover  { background: rgba(255,100,247,0.35); border-color: #ff6af7; transform: scale(1.07); }
+    .np-btn:active { transform: scale(0.94); background: rgba(255,100,247,0.55); }
+
+    .np-back  { background: rgba(255,59,48,0.18);  border-color: rgba(255,59,48,0.4);  font-size: 1.4rem; }
+    .np-back:hover  { background: rgba(255,59,48,0.38);  border-color: #ff3b30; }
+
+    .np-enter { background: rgba(52,199,89,0.22); border-color: rgba(52,199,89,0.45); font-size: 1.4rem; }
+    .np-enter:hover { background: rgba(52,199,89,0.45); border-color: #34c759; }
+
     .all-correct-banner {
       background: linear-gradient(135deg, rgba(52,199,89,0.2), rgba(0,240,255,0.15));
       border: 2px solid rgba(52,199,89,0.5);
@@ -461,7 +494,21 @@
     </div>
     <div class="question-card">
       <div class="question" id="question">3 × 4 = ?</div>
-      <input class="answer-input" id="answer-input" type="number" placeholder="?" autofocus />
+      <input class="answer-input" id="answer-input" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="?" autocomplete="off" readonly />
+      <div class="numpad" id="numpad">
+        <button class="np-btn" data-val="1">1</button>
+        <button class="np-btn" data-val="2">2</button>
+        <button class="np-btn" data-val="3">3</button>
+        <button class="np-btn" data-val="4">4</button>
+        <button class="np-btn" data-val="5">5</button>
+        <button class="np-btn" data-val="6">6</button>
+        <button class="np-btn" data-val="7">7</button>
+        <button class="np-btn" data-val="8">8</button>
+        <button class="np-btn" data-val="9">9</button>
+        <button class="np-btn np-back" data-val="back">⌫</button>
+        <button class="np-btn" data-val="0">0</button>
+        <button class="np-btn np-enter" data-val="enter">✓</button>
+      </div>
       <div class="feedback" id="feedback"></div>
     </div>
   </div>
@@ -722,8 +769,25 @@
     else showChoose();
   });
 
-  document.getElementById('answer-input').addEventListener('keydown', e => {
-    if (e.key === 'Enter') submitAnswer();
+  // Physical keyboard still works
+  document.addEventListener('keydown', e => {
+    if (!document.getElementById('screen-game').style.display || document.getElementById('screen-game').style.display === 'none') return;
+    if (answered) return;
+    const input = document.getElementById('answer-input');
+    if (e.key === 'Enter') { submitAnswer(); return; }
+    if (e.key === 'Backspace') { input.value = input.value.slice(0,-1); return; }
+    if (/^[0-9]$/.test(e.key)) { if (input.value.length < 4) input.value += e.key; }
+  });
+
+  // On-screen numpad
+  document.getElementById('numpad').addEventListener('click', e => {
+    const btn = e.target.closest('.np-btn');
+    if (!btn || answered) return;
+    const val = btn.dataset.val;
+    const input = document.getElementById('answer-input');
+    if (val === 'enter') { submitAnswer(); }
+    else if (val === 'back') { input.value = input.value.slice(0, -1); }
+    else if (input.value.length < 4) { input.value += val; }
   });
 
   function showChoose() {
@@ -798,7 +862,9 @@
     document.getElementById('streak').textContent           = streak;
     document.getElementById('progress-bar').style.width     = (currentQ / TOTAL * 100) + '%';
     const input = document.getElementById('answer-input');
-    input.value = ''; input.className = 'answer-input'; input.disabled = false; input.focus();
+    input.value = ''; input.className = 'answer-input'; input.disabled = false;
+    document.getElementById('numpad').style.opacity = '1';
+    document.getElementById('numpad').style.pointerEvents = 'auto';
     document.getElementById('feedback').textContent = '';
     document.getElementById('feedback').className   = 'feedback';
   }
@@ -812,6 +878,8 @@
     const [a, b] = questions[currentQ];
     const correct = a * b;
     answered = true; input.disabled = true;
+    document.getElementById('numpad').style.opacity = '0.4';
+    document.getElementById('numpad').style.pointerEvents = 'none';
 
     const feedback = document.getElementById('feedback');
 
