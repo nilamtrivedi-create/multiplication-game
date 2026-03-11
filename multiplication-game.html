@@ -587,18 +587,24 @@
     const emoji    = pool[Math.floor(Math.random() * pool.length)];
     const big      = isMain;
 
+    // Constrain to top or bottom 22% of screen so they stay out of the game area
+    const band = canvas.height * 0.22;
+    const y = Math.random() < 0.5
+      ? Math.random() * band                              // top band
+      : canvas.height - band + Math.random() * band;     // bottom band
+
     const obj = {
       emoji,
-      y:        Math.random() * canvas.height,
-      size:     big ? (70 + Math.random() * 60) : (40 + Math.random() * 40),
-      speedX:   (Math.random() * 1.4 + 0.5) * (Math.random() < 0.5 ? 1 : -1),
-      speedY:   (Math.random() - 0.5) * 0.6,
+      y,
+      size:     big ? (45 + Math.random() * 30) : (25 + Math.random() * 20),
+      speedX:   (Math.random() * 1.2 + 0.4) * (Math.random() < 0.5 ? 1 : -1),
+      speedY:   (Math.random() - 0.5) * 0.3,
       alpha:    0,
       fadeIn:   true,
       life:     0,
       maxLife:  280 + Math.random() * 220,
       rotation: (Math.random() - 0.5) * 0.4,
-      rotSpeed: (Math.random() - 0.5) * 0.015,
+      rotSpeed: (Math.random() - 0.5) * 0.012,
       flicker:  !isMain && Math.random() < 0.3,
       flickerT: 0,
       isMain,
@@ -607,13 +613,13 @@
     floaters.push(obj);
   }
 
-  // Seed initial floaters spread across screen
+  // Seed initial floaters spread across perimeter bands
   for (let i = 0; i < 14; i++) {
     spawnFloater();
     const f = floaters[i];
     f.x     = Math.random() * canvas.width;
     f.life  = Math.random() * f.maxLife * 0.5;
-    f.alpha = 0.45 + Math.random() * 0.3;
+    f.alpha = 0.2 + Math.random() * 0.15;
     f.fadeIn = false;
   }
 
@@ -642,8 +648,8 @@
       f.life++; f.x += f.speedX; f.y += f.speedY; f.rotation += f.rotSpeed;
 
       if (f.fadeIn) {
-        f.alpha = Math.min(0.72, f.alpha + 0.016);
-        if (f.alpha >= 0.72) f.fadeIn = false;
+        f.alpha = Math.min(0.30, f.alpha + 0.012);
+        if (f.alpha >= 0.30) f.fadeIn = false;
       }
       if (f.life > f.maxLife * 0.75) f.alpha = Math.max(0, f.alpha - 0.016);
 
@@ -683,7 +689,7 @@
       const p = s.life / s.maxLife;
       const a = p < 0.3 ? p / 0.3 : 1 - (p - 0.3) / 0.7;
       ctx.save();
-      ctx.globalAlpha = a * 0.75;
+      ctx.globalAlpha = a * 0.35;
       ctx.strokeStyle = activeTheme.strikeColor;
       ctx.lineWidth   = Math.max(0.3, 2.5 - p * 2);
       ctx.shadowColor = activeTheme.strikeShadow;
@@ -711,7 +717,7 @@
       const f = floaters[i];
       f.x     = Math.random() * canvas.width;
       f.life  = Math.random() * f.maxLife * 0.5;
-      f.alpha = 0.45 + Math.random() * 0.3;
+      f.alpha = 0.18 + Math.random() * 0.12;
       f.fadeIn = false;
     }
   }
