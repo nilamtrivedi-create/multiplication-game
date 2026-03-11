@@ -365,6 +365,34 @@
       border-color: #ffd200;
     }
 
+    .study-picker {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      justify-content: center;
+      margin-bottom: 4px;
+    }
+
+    .study-pick-btn {
+      background: rgba(120,0,200,0.18);
+      border: 2px solid rgba(200,100,255,0.3);
+      color: white;
+      font-size: 1rem;
+      font-weight: bold;
+      padding: 8px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.15s;
+      min-width: 42px;
+    }
+    .study-pick-btn:hover { background: rgba(255,100,247,0.25); border-color: #ff6af7; }
+    .study-pick-btn.selected {
+      background: linear-gradient(135deg, rgba(255,100,247,0.45), rgba(0,240,255,0.25));
+      border-color: #ffd200;
+      box-shadow: 0 0 10px rgba(255,210,0,0.4);
+    }
+    .study-pick-all { min-width: 52px; }
+
     .cover-toggle-btn {
       background: linear-gradient(90deg, #af52de, #ff6af7);
       color: white;
@@ -520,8 +548,25 @@
   <div id="screen-study">
     <button class="back-btn" id="study-back-btn">← Back to Main</button>
     <h1>📖 Study Guide</h1>
-    <p class="study-hint"></p>
-    <div style="margin-bottom:14px;">
+
+    <!-- Table picker inside study guide -->
+    <p style="color:#c9a0ff;font-size:0.88rem;margin-bottom:10px;">Which tables do you want to study?</p>
+    <div class="study-picker">
+      <button class="study-pick-btn study-pick-all selected" id="study-pick-all">All</button>
+      <button class="study-pick-btn" data-sn="2">2</button>
+      <button class="study-pick-btn" data-sn="3">3</button>
+      <button class="study-pick-btn" data-sn="4">4</button>
+      <button class="study-pick-btn" data-sn="5">5</button>
+      <button class="study-pick-btn" data-sn="6">6</button>
+      <button class="study-pick-btn" data-sn="7">7</button>
+      <button class="study-pick-btn" data-sn="8">8</button>
+      <button class="study-pick-btn" data-sn="9">9</button>
+      <button class="study-pick-btn" data-sn="10">10</button>
+      <button class="study-pick-btn" data-sn="11">11</button>
+      <button class="study-pick-btn" data-sn="12">12</button>
+    </div>
+
+    <div style="margin-bottom:14px;margin-top:14px;">
       <button class="cover-toggle-btn" id="cover-toggle-btn">🙈 Cover Answers</button>
       <button class="show-all-btn" id="show-all-btn" style="display:none;">👁 Show All Answers</button>
     </div>
@@ -855,26 +900,16 @@
   }
 
   let coverMode = false;
+  let studyTables = [2,3,4,5,6,7,8,9,10,11,12];
 
-  function showStudy() {
-    const tables = selectedTables.length > 0
-      ? [...selectedTables].sort((a,b) => a - b)
-      : [2,3,4,5,6,7,8,9,10,11,12];
-
-    document.querySelector('.study-hint').textContent = selectedTables.length > 0
-      ? `Showing table${tables.length > 1 ? 's' : ''}: ${tables.join(', ')}`
-      : 'Showing all tables 2–12 (select specific tables on the main page to filter)';
-
-    document.getElementById('study-play-btn').textContent =
-      selectedTables.length > 0 ? '▶ Ready — Start Game!' : '← Pick tables first';
-
-    // Reset cover mode each time we open study guide
+  function renderStudyGrid() {
+    // Reset cover mode whenever grid re-renders
     coverMode = false;
     document.getElementById('cover-toggle-btn').textContent = '🙈 Cover Answers';
     document.getElementById('show-all-btn').style.display = 'none';
 
     const grid = document.getElementById('study-grid');
-    grid.innerHTML = tables.map(n => `
+    grid.innerHTML = studyTables.map(n => `
       <div class="study-card">
         <h3>× ${n} Table</h3>
         ${[1,2,3,4,5,6,7,8,9,10,11,12].map(i => `
@@ -885,7 +920,6 @@
           </div>`).join('')}
       </div>`).join('');
 
-    // Click individual answer to reveal when covered
     grid.querySelectorAll('.ans').forEach(el => {
       el.addEventListener('click', () => {
         if (coverMode && el.classList.contains('covered')) {
@@ -894,6 +928,57 @@
         }
       });
     });
+  }
+
+  // Study guide table picker
+  document.querySelectorAll('.study-pick-btn[data-sn]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const n = parseInt(btn.dataset.sn);
+      // Deselect "All"
+      document.getElementById('study-pick-all').classList.remove('selected');
+      if (btn.classList.contains('selected')) {
+        btn.classList.remove('selected');
+        studyTables = studyTables.filter(x => x !== n);
+        // If nothing selected, fall back to all
+        if (studyTables.length === 0) {
+          studyTables = [2,3,4,5,6,7,8,9,10,11,12];
+          document.getElementById('study-pick-all').classList.add('selected');
+          document.querySelectorAll('.study-pick-btn[data-sn]').forEach(b => b.classList.remove('selected'));
+        }
+      } else {
+        btn.classList.add('selected');
+        if (!studyTables.includes(n)) studyTables.push(n);
+        studyTables.sort((a,b) => a - b);
+      }
+      renderStudyGrid();
+    });
+  });
+
+  document.getElementById('study-pick-all').addEventListener('click', () => {
+    studyTables = [2,3,4,5,6,7,8,9,10,11,12];
+    document.getElementById('study-pick-all').classList.add('selected');
+    document.querySelectorAll('.study-pick-btn[data-sn]').forEach(b => b.classList.remove('selected'));
+    renderStudyGrid();
+  });
+
+  function showStudy() {
+    // Sync picker to match game selection if any, otherwise all
+    if (selectedTables.length > 0) {
+      studyTables = [...selectedTables].sort((a,b) => a - b);
+      document.getElementById('study-pick-all').classList.remove('selected');
+      document.querySelectorAll('.study-pick-btn[data-sn]').forEach(b => {
+        b.classList.toggle('selected', studyTables.includes(parseInt(b.dataset.sn)));
+      });
+    } else {
+      studyTables = [2,3,4,5,6,7,8,9,10,11,12];
+      document.getElementById('study-pick-all').classList.add('selected');
+      document.querySelectorAll('.study-pick-btn[data-sn]').forEach(b => b.classList.remove('selected'));
+    }
+
+    document.getElementById('study-play-btn').textContent =
+      selectedTables.length > 0 ? '▶ Ready — Start Game!' : '▶ Start Game';
+
+    renderStudyGrid();
 
     document.getElementById('screen-choose').style.display  = 'none';
     document.getElementById('screen-game').style.display    = 'none';
