@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Multiplication Master</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      overflow-x: hidden;
+      position: relative;
+      transition: background 0.6s ease;
+      background: linear-gradient(135deg, #0d0025, #1a0040, #00001a, #001a2e);
+    }
+
+    #bg-canvas {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      width: 100%;
+      max-width: 540px;
+      padding: 20px;
+    }
+
+    /* scrollable screens */
+    body { overflow-y: auto; }
+
+    #screen-choose, #screen-results {
+      padding-bottom: 20px;
+    }
+
+    h1 {
+      font-size: 2.4rem;
+      margin-bottom: 6px;
+      background: linear-gradient(90deg, #ff6af7, #ffd200, #00f0ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 0 10px rgba(255,100,247,0.5));
+    }
+
+    .subtitle { color: #c9a0ff; margin-bottom: 16px; font-size: 1rem; }
+
+    /* ── Theme picker ── */
+    .theme-label { color: #c9a0ff; font-size: 0.95rem; margin-bottom: 10px; }
+
+    .theme-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .theme-btn {
+      background: rgba(255,255,255,0.06);
+      border: 2px solid rgba(255,255,255,0.15);
+      color: white;
+      font-size: 0.95rem;
+      font-weight: bold;
+      padding: 14px 10px;
+      border-radius: 16px;
+      cursor: pointer;
+      transition: all 0.2s;
+      line-height: 1.4;
+    }
+    .theme-btn .theme-icon { font-size: 1.8rem; display: block; margin-bottom: 4px; }
+    .theme-btn:hover { transform: scale(1.04); background: rgba(255,255,255,0.12); }
+    .theme-btn.selected { border-width: 3px; }
+
+    .theme-btn[data-theme="dragons"].selected   { border-color: #ff6af7; background: rgba(255,106,247,0.2); box-shadow: 0 0 16px rgba(255,106,247,0.5); }
+    .theme-btn[data-theme="waterfalls"].selected { border-color: #00f0ff; background: rgba(0,240,255,0.15); box-shadow: 0 0 16px rgba(0,240,255,0.4); }
+    .theme-btn[data-theme="marshmallow"].selected{ border-color: #ffb3e6; background: rgba(255,179,230,0.18); box-shadow: 0 0 16px rgba(255,105,180,0.4); }
+    .theme-btn[data-theme="fairy"].selected      { border-color: #ffd200; background: rgba(255,210,0,0.15);  box-shadow: 0 0 16px rgba(255,210,0,0.4); }
+
+    /* ── Name input ── */
+    .name-input-wrap { margin-bottom: 16px; }
+    .name-input-wrap label { display: block; color: #c9a0ff; margin-bottom: 7px; font-size: 0.95rem; }
+    .name-input {
+      font-size: 1.15rem;
+      text-align: center;
+      padding: 10px 18px;
+      border-radius: 14px;
+      border: 2px solid rgba(200,100,255,0.4);
+      background: rgba(100,0,200,0.15);
+      color: white;
+      outline: none;
+      width: 240px;
+      transition: border-color 0.2s;
+    }
+    .name-input:focus { border-color: #ff6af7; }
+    .name-input::placeholder { color: rgba(255,255,255,0.3); }
+
+    /* ── Table grid ── */
+    #screen-choose .tables {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 9px;
+      margin-bottom: 14px;
+    }
+
+    .table-btn {
+      background: rgba(120,0,200,0.18);
+      border: 2px solid rgba(200,100,255,0.3);
+      color: white;
+      font-size: 1.4rem;
+      font-weight: bold;
+      padding: 15px 0;
+      border-radius: 14px;
+      cursor: pointer;
+      transition: all 0.18s;
+    }
+    .table-btn:hover { background: rgba(255,100,247,0.3); border-color: #ff6af7; transform: scale(1.06); }
+    .table-btn.selected {
+      background: linear-gradient(135deg, rgba(255,100,247,0.45), rgba(0,240,255,0.25));
+      border-color: #ffd200;
+      transform: scale(1.08);
+      box-shadow: 0 0 12px rgba(255,210,0,0.5);
+    }
+
+    /* ── Buttons ── */
+    .start-btn, .restart-btn, .menu-btn {
+      background: linear-gradient(90deg, #ff6af7, #ffd200);
+      color: #1a0040;
+      font-size: 1.1rem;
+      font-weight: bold;
+      border: none;
+      padding: 13px 34px;
+      border-radius: 30px;
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s;
+      margin: 6px;
+      box-shadow: 0 4px 20px rgba(255,106,247,0.4);
+    }
+    .start-btn:hover, .restart-btn:hover, .menu-btn:hover {
+      transform: scale(1.06);
+      box-shadow: 0 6px 28px rgba(255,210,0,0.5);
+    }
+    .start-btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none; box-shadow: none; }
+
+    .super-btn {
+      display: block;
+      width: 100%;
+      background: linear-gradient(90deg, #ff2d55, #ff9500, #ffd200, #34c759, #007aff, #af52de);
+      color: white;
+      font-size: 0.95rem;
+      font-weight: bold;
+      border: none;
+      padding: 13px 20px;
+      border-radius: 16px;
+      cursor: pointer;
+      margin: 12px 0 6px;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+      box-shadow: 0 4px 24px rgba(255,100,0,0.5);
+      transition: transform 0.15s, box-shadow 0.15s;
+      animation: rainbow-pulse 3s ease-in-out infinite;
+    }
+    .super-btn:hover { transform: scale(1.04); box-shadow: 0 6px 32px rgba(255,100,0,0.7); }
+
+    @keyframes rainbow-pulse {
+      0%,100% { filter: brightness(1); }
+      50%      { filter: brightness(1.2) saturate(1.3); }
+    }
+
+    .back-btn {
+      background: transparent;
+      border: 2px solid rgba(200,100,255,0.4);
+      color: #c9a0ff;
+      font-size: 0.9rem;
+      font-weight: bold;
+      padding: 7px 18px;
+      border-radius: 20px;
+      cursor: pointer;
+      margin-bottom: 12px;
+      transition: all 0.15s;
+    }
+    .back-btn:hover { background: rgba(200,100,255,0.15); border-color: #ff6af7; color: white; }
+
+    /* ── Game screen ── */
+    #screen-game { display: none; }
+
+    .stats {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 18px;
+      font-size: 0.95rem;
+      color: #c9a0ff;
+    }
+    .stats span {
+      background: rgba(100,0,200,0.2);
+      border: 1px solid rgba(200,100,255,0.25);
+      padding: 6px 12px;
+      border-radius: 20px;
+    }
+
+    .question-card {
+      background: rgba(80,0,160,0.2);
+      border: 1px solid rgba(200,100,255,0.2);
+      border-radius: 24px;
+      padding: 34px 28px;
+      margin-bottom: 18px;
+      box-shadow: 0 0 40px rgba(180,0,255,0.15);
+    }
+
+    .question {
+      font-size: 3.5rem;
+      font-weight: bold;
+      letter-spacing: 2px;
+      margin-bottom: 20px;
+      background: linear-gradient(90deg, #00f0ff, #ff6af7);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 0 8px rgba(0,240,255,0.4));
+    }
+
+    .answer-input {
+      width: 140px;
+      font-size: 2rem;
+      text-align: center;
+      padding: 12px;
+      border-radius: 14px;
+      border: 2px solid rgba(200,100,255,0.35);
+      background: rgba(80,0,160,0.25);
+      color: white;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .answer-input:focus   { border-color: #ff6af7; box-shadow: 0 0 12px rgba(255,106,247,0.4); }
+    .answer-input.correct { border-color: #34c759; background: rgba(52,199,89,0.2); box-shadow: 0 0 14px rgba(52,199,89,0.4); }
+    .answer-input.wrong   { border-color: #ff3b30; background: rgba(255,59,48,0.2);  box-shadow: 0 0 14px rgba(255,59,48,0.4); }
+
+    .feedback {
+      font-size: 1.25rem;
+      font-weight: bold;
+      min-height: 34px;
+      margin-top: 14px;
+    }
+    .feedback.correct { color: #34c759; }
+    .feedback.wrong   { color: #ff3b30; }
+
+    .progress-bar-wrap {
+      background: rgba(255,255,255,0.08);
+      border-radius: 10px;
+      height: 10px;
+      margin-bottom: 16px;
+      overflow: hidden;
+    }
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #ff6af7, #ffd200, #00f0ff);
+      border-radius: 10px;
+      transition: width 0.35s;
+    }
+
+    /* ── Results screen ── */
+    #screen-results { display: none; }
+
+    .score-circle {
+      width: 150px; height: 150px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #ff6af7, #ffd200, #00f0ff);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      box-shadow: 0 0 40px rgba(255,106,247,0.5);
+      animation: pulse-glow 2s ease-in-out infinite;
+    }
+    @keyframes pulse-glow {
+      0%,100% { box-shadow: 0 0 30px rgba(255,106,247,0.5); }
+      50%      { box-shadow: 0 0 60px rgba(0,240,255,0.7); }
+    }
+    .score-circle .score-num   { font-size: 3rem; font-weight: bold; color: #1a0040; }
+    .score-circle .score-label { font-size: 0.9rem; color: #1a0040; font-weight: bold; }
+
+    .result-message { font-size: 1.35rem; margin-bottom: 6px; }
+    .result-sub { color: #c9a0ff; margin-bottom: 18px; font-size: 0.95rem; }
+
+    .missed-section { text-align: left; margin-bottom: 20px; }
+    .missed-section h3 { color: #ffd200; margin-bottom: 12px; font-size: 1.05rem; text-align: center; }
+    .missed-list { list-style: none; }
+    .missed-list li {
+      background: rgba(255,59,48,0.12);
+      border: 1px solid rgba(255,59,48,0.3);
+      padding: 10px 16px;
+      border-radius: 12px;
+      margin-bottom: 8px;
+      font-size: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .wrong-answer  { color: #ff6b6b; text-decoration: line-through; margin-right: 8px; font-size: 0.85rem; }
+    .correct-answer{ color: #34c759; font-weight: bold; font-size: 1.1rem; }
+
+    /* ── Study Guide ── */
+    #screen-study { display: none; padding-bottom: 20px; }
+
+    .study-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 14px;
+      margin-top: 16px;
+      text-align: left;
+    }
+
+    .study-card {
+      background: rgba(80,0,160,0.22);
+      border: 2px solid rgba(200,100,255,0.25);
+      border-radius: 18px;
+      padding: 16px 18px;
+      transition: box-shadow 0.2s;
+    }
+    .study-card:hover { box-shadow: 0 0 18px rgba(255,106,247,0.35); }
+
+    .study-card h3 {
+      font-size: 1.3rem;
+      margin-bottom: 10px;
+      background: linear-gradient(90deg, #ff6af7, #ffd200);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .study-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 4px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      font-size: 0.95rem;
+    }
+    .study-row:last-child { border-bottom: none; }
+    .study-row .eq  { color: #c9a0ff; }
+    .study-row .ans { font-weight: bold; color: #ffd200; font-size: 1.05rem; }
+
+    .study-hint {
+      color: #c9a0ff;
+      font-size: 0.88rem;
+      margin-bottom: 14px;
+    }
+
+    .study-btn {
+      background: linear-gradient(90deg, #00f0ff, #007aff);
+      color: #001428;
+      font-size: 1rem;
+      font-weight: bold;
+      border: none;
+      padding: 11px 28px;
+      border-radius: 24px;
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s;
+      margin: 6px;
+      box-shadow: 0 4px 16px rgba(0,240,255,0.35);
+    }
+    .study-btn:hover { transform: scale(1.05); box-shadow: 0 6px 24px rgba(0,240,255,0.5); }
+
+    .all-correct-banner {
+      background: linear-gradient(135deg, rgba(52,199,89,0.2), rgba(0,240,255,0.15));
+      border: 2px solid rgba(52,199,89,0.5);
+      border-radius: 16px;
+      padding: 18px;
+      margin-bottom: 18px;
+      font-size: 1.05rem;
+      color: #34c759;
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="bg-canvas"></canvas>
+
+<div class="container">
+
+  <!-- SCREEN 1: Choose -->
+  <div id="screen-choose">
+    <h1>⚡ Multiplication Master ⚡</h1>
+    <p class="subtitle">🐉 The ultimate times-tables adventure 🐉</p>
+
+    <!-- Theme picker -->
+    <p class="theme-label">🎨 Pick your background theme:</p>
+    <div class="theme-grid">
+      <button class="theme-btn selected" data-theme="dragons">
+        <span class="theme-icon">🌈🐉</span>Rainbows &amp; Dragons
+      </button>
+      <button class="theme-btn" data-theme="waterfalls">
+        <span class="theme-icon">⚡🌊</span>Lightning &amp; Waterfalls
+      </button>
+      <button class="theme-btn" data-theme="marshmallow">
+        <span class="theme-icon">☁️🍬</span>Cloud Marshmallows
+      </button>
+      <button class="theme-btn" data-theme="fairy">
+        <span class="theme-icon">🧚🟦</span>Fairy Legos
+      </button>
+    </div>
+
+    <!-- Name -->
+    <div class="name-input-wrap">
+      <label for="player-name">What's your name?</label>
+      <input class="name-input" id="player-name" type="text" placeholder="Enter your name" maxlength="20" />
+    </div>
+
+    <!-- Table buttons -->
+    <div class="tables">
+      <button class="table-btn" data-n="3">3</button>
+      <button class="table-btn" data-n="4">4</button>
+      <button class="table-btn" data-n="5">5</button>
+      <button class="table-btn" data-n="6">6</button>
+      <button class="table-btn" data-n="7">7</button>
+      <button class="table-btn" data-n="8">8</button>
+      <button class="table-btn" data-n="9">9</button>
+      <button class="table-btn" data-n="10">10</button>
+      <button class="table-btn" data-n="11">11</button>
+      <button class="table-btn" data-n="12">12</button>
+    </div>
+
+    <button class="super-btn" id="super-btn">
+      🔥 SUPER EXTRA AMAZING CHALLENGE 🔥<br>
+      <small style="font-weight:normal;font-size:0.8rem;">All tables 2–12</small>
+    </button>
+    <br>
+    <button class="start-btn" id="start-btn" disabled>▶ Start Game</button>
+    <button class="study-btn" id="study-btn">📖 Study Guide</button>
+  </div>
+
+  <!-- SCREEN 4: Study Guide -->
+  <div id="screen-study">
+    <button class="back-btn" id="study-back-btn">← Back to Main</button>
+    <h1>📖 Study Guide</h1>
+    <p class="study-hint">Select tables on the main page to see only those, or view all 2–12 here.</p>
+    <div class="study-grid" id="study-grid"></div>
+    <br>
+    <button class="study-btn" id="study-play-btn">▶ Ready — Start Game!</button>
+    <button class="back-btn" style="margin-top:8px" id="study-back-btn2">← Back to Main</button>
+  </div>
+
+  <!-- SCREEN 2: Game -->
+  <div id="screen-game">
+    <button class="back-btn" id="back-btn">← Back</button>
+    <h1 id="game-title">⚡ Go! ⚡</h1>
+    <div class="stats">
+      <span>Q <span id="q-num">1</span>/<span id="q-total">12</span></span>
+      <span>Score <span id="score">0</span></span>
+      <span>Streak <span id="streak">0</span> 🔥</span>
+    </div>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar" id="progress-bar" style="width:0%"></div>
+    </div>
+    <div class="question-card">
+      <div class="question" id="question">3 × 4 = ?</div>
+      <input class="answer-input" id="answer-input" type="number" placeholder="?" autofocus />
+      <div class="feedback" id="feedback"></div>
+    </div>
+  </div>
+
+  <!-- SCREEN 3: Results -->
+  <div id="screen-results">
+    <button class="back-btn" id="results-back-btn">← Back to Main</button>
+    <h1 id="results-title">🐉 Nice work! 🐉</h1>
+    <div class="score-circle">
+      <span class="score-num" id="final-score">0</span>
+      <span class="score-label">/ <span id="final-total">12</span></span>
+    </div>
+    <div class="result-message" id="result-message"></div>
+    <div class="result-sub" id="result-sub"></div>
+    <div class="missed-section" id="missed-section"></div>
+    <button class="restart-btn" id="restart-btn">⚡ Play Again</button>
+    <button class="menu-btn" id="menu-btn">🐉 Change Tables</button>
+  </div>
+
+</div>
+
+<script>
+  // ── Theme definitions ────────────────────────────────────────────
+  const THEMES = {
+    dragons: {
+      bg:          'linear-gradient(135deg, #0d0025, #1a0040, #00001a, #001a2e)',
+      main:        ['🐉','🐲','🌈','🌈'],
+      accent:      ['✨','💎','🔮','💫','⭐','🌟'],
+      strikeColor: '#ff6af7',
+      strikeShadow:'#ffd200',
+      strikeOn:    true,
+    },
+    waterfalls: {
+      bg:          'linear-gradient(135deg, #001428, #002244, #001a1a, #003333)',
+      main:        ['⚡','⚡','🌊','💧'],
+      accent:      ['🌀','💦','🐬','🐠','🐋'],
+      strikeColor: '#00f0ff',
+      strikeShadow:'#007aff',
+      strikeOn:    true,
+    },
+    marshmallow: {
+      bg:          'linear-gradient(135deg, #1a0030, #220040, #0a0a20, #200030)',
+      main:        ['☁️','🍬','🍡','🍭'],
+      accent:      ['🌸','🌤️','🍥','🩷','🌷','💕'],
+      strikeColor: '#ffb3e6',
+      strikeShadow:'#ff69b4',
+      strikeOn:    false,
+    },
+    fairy: {
+      bg:          'linear-gradient(135deg, #080018, #001208, #181800, #180008)',
+      main:        ['🧚','🧚','🪄','🟥','🟦'],
+      accent:      ['🟨','🟩','⭐','🧱','🌟','✨'],
+      strikeColor: '#ffd200',
+      strikeShadow:'#ff9500',
+      strikeOn:    true,
+    },
+  };
+
+  let activeTheme = THEMES.dragons;
+
+  // ── Canvas setup ─────────────────────────────────────────────────
+  const canvas = document.getElementById('bg-canvas');
+  const ctx    = canvas.getContext('2d');
+
+  function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+  window.addEventListener('resize', resize);
+  resize();
+
+  const floaters = [];
+  const strikes  = [];
+
+  function spawnFloater() {
+    const isMain   = Math.random() < 0.45;
+    const pool     = isMain ? activeTheme.main : activeTheme.accent;
+    const emoji    = pool[Math.floor(Math.random() * pool.length)];
+    const big      = isMain;
+
+    const obj = {
+      emoji,
+      y:        Math.random() * canvas.height,
+      size:     big ? (70 + Math.random() * 60) : (40 + Math.random() * 40),
+      speedX:   (Math.random() * 1.4 + 0.5) * (Math.random() < 0.5 ? 1 : -1),
+      speedY:   (Math.random() - 0.5) * 0.6,
+      alpha:    0,
+      fadeIn:   true,
+      life:     0,
+      maxLife:  280 + Math.random() * 220,
+      rotation: (Math.random() - 0.5) * 0.4,
+      rotSpeed: (Math.random() - 0.5) * 0.015,
+      flicker:  !isMain && Math.random() < 0.3,
+      flickerT: 0,
+      isMain,
+    };
+    obj.x = obj.speedX > 0 ? -100 : canvas.width + 100;
+    floaters.push(obj);
+  }
+
+  // Seed initial floaters spread across screen
+  for (let i = 0; i < 14; i++) {
+    spawnFloater();
+    const f = floaters[i];
+    f.x     = Math.random() * canvas.width;
+    f.life  = Math.random() * f.maxLife * 0.5;
+    f.alpha = 0.45 + Math.random() * 0.3;
+    f.fadeIn = false;
+  }
+
+  function addStrike() {
+    const x = Math.random() * canvas.width;
+    const segs = [];
+    let cx = x, cy = 0;
+    const targetY = canvas.height * 0.25 + Math.random() * canvas.height * 0.55;
+    while (cy < targetY) {
+      const nx = cx + (Math.random() - 0.5) * 70;
+      const ny = cy + 18 + Math.random() * 28;
+      segs.push([cx, cy, nx, ny]);
+      cx = nx; cy = ny;
+    }
+    strikes.push({ segs, life: 0, maxLife: 20 });
+  }
+
+  let spawnT = 0, strikeT = 0;
+
+  function drawFrame() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Floaters
+    for (let i = floaters.length - 1; i >= 0; i--) {
+      const f = floaters[i];
+      f.life++; f.x += f.speedX; f.y += f.speedY; f.rotation += f.rotSpeed;
+
+      if (f.fadeIn) {
+        f.alpha = Math.min(0.72, f.alpha + 0.016);
+        if (f.alpha >= 0.72) f.fadeIn = false;
+      }
+      if (f.life > f.maxLife * 0.75) f.alpha = Math.max(0, f.alpha - 0.016);
+
+      let a = f.alpha;
+      if (f.flicker) { f.flickerT++; a *= 0.55 + 0.45 * Math.abs(Math.sin(f.flickerT * 0.25)); }
+
+      ctx.save();
+      ctx.globalAlpha = a;
+      ctx.font = `${f.size}px serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.translate(f.x, f.y);
+      ctx.rotate(f.rotation);
+      if (f.isMain && f.speedX < 0) ctx.scale(-1, 1);
+      ctx.fillText(f.emoji, 0, 0);
+      ctx.restore();
+
+      if (f.life >= f.maxLife || f.alpha <= 0) floaters.splice(i, 1);
+    }
+
+    spawnT++;
+    if (spawnT > 35 && floaters.length < 20) { spawnFloater(); spawnT = 0; }
+
+    // Lightning strikes
+    if (activeTheme.strikeOn) {
+      strikeT++;
+      if (strikeT > 150 + Math.random() * 180) {
+        addStrike();
+        if (Math.random() < 0.35) addStrike();
+        strikeT = 0;
+      }
+    }
+
+    for (let i = strikes.length - 1; i >= 0; i--) {
+      const s = strikes[i];
+      s.life++;
+      const p = s.life / s.maxLife;
+      const a = p < 0.3 ? p / 0.3 : 1 - (p - 0.3) / 0.7;
+      ctx.save();
+      ctx.globalAlpha = a * 0.75;
+      ctx.strokeStyle = activeTheme.strikeColor;
+      ctx.lineWidth   = Math.max(0.3, 2.5 - p * 2);
+      ctx.shadowColor = activeTheme.strikeShadow;
+      ctx.shadowBlur  = 18;
+      ctx.beginPath();
+      for (const [x1,y1,x2,y2] of s.segs) { ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); }
+      ctx.stroke();
+      ctx.restore();
+      if (s.life >= s.maxLife) strikes.splice(i, 1);
+    }
+
+    requestAnimationFrame(drawFrame);
+  }
+
+  drawFrame();
+
+  // ── Apply theme ───────────────────────────────────────────────────
+  function applyTheme(key) {
+    activeTheme = THEMES[key];
+    document.body.style.background = activeTheme.bg;
+    // reset floaters to new theme emojis
+    floaters.length = 0;
+    for (let i = 0; i < 14; i++) {
+      spawnFloater();
+      const f = floaters[i];
+      f.x     = Math.random() * canvas.width;
+      f.life  = Math.random() * f.maxLife * 0.5;
+      f.alpha = 0.45 + Math.random() * 0.3;
+      f.fadeIn = false;
+    }
+  }
+
+  document.querySelectorAll('.theme-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      applyTheme(btn.dataset.theme);
+    });
+  });
+
+  // ── Game logic ────────────────────────────────────────────────────
+  let TOTAL      = 12;
+  let selectedTables = [];
+  let questions  = [];
+  let currentQ   = 0;
+  let score      = 0;
+  let streak     = 0;
+  let missed     = [];
+  let answered   = false;
+  let playerName = '';
+
+  document.querySelectorAll('.table-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const n = parseInt(btn.dataset.n);
+      if (selectedTables.includes(n)) {
+        selectedTables = selectedTables.filter(x => x !== n);
+        btn.classList.remove('selected');
+      } else {
+        selectedTables.push(n);
+        btn.classList.add('selected');
+      }
+      document.getElementById('start-btn').disabled = selectedTables.length === 0;
+    });
+  });
+
+  document.getElementById('super-btn').addEventListener('click', () => {
+    selectedTables = [2,3,4,5,6,7,8,9,10,11,12];
+    document.querySelectorAll('.table-btn').forEach(btn => {
+      if (selectedTables.includes(parseInt(btn.dataset.n))) btn.classList.add('selected');
+    });
+    document.getElementById('start-btn').disabled = false;
+  });
+
+  document.getElementById('start-btn').addEventListener('click', startGame);
+  document.getElementById('restart-btn').addEventListener('click', startGame);
+  document.getElementById('menu-btn').addEventListener('click', showChoose);
+  document.getElementById('back-btn').addEventListener('click', showChoose);
+  document.getElementById('results-back-btn').addEventListener('click', showChoose);
+  document.getElementById('study-btn').addEventListener('click', showStudy);
+  document.getElementById('study-back-btn').addEventListener('click', showChoose);
+  document.getElementById('study-back-btn2').addEventListener('click', showChoose);
+  document.getElementById('study-play-btn').addEventListener('click', () => {
+    if (selectedTables.length > 0) startGame();
+    else showChoose();
+  });
+
+  document.getElementById('answer-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') submitAnswer();
+  });
+
+  function showChoose() {
+    document.getElementById('screen-choose').style.display  = 'block';
+    document.getElementById('screen-game').style.display    = 'none';
+    document.getElementById('screen-results').style.display = 'none';
+    document.getElementById('screen-study').style.display   = 'none';
+  }
+
+  function showStudy() {
+    // Use selected tables if any, otherwise show all 2–12
+    const tables = selectedTables.length > 0
+      ? [...selectedTables].sort((a,b) => a - b)
+      : [2,3,4,5,6,7,8,9,10,11,12];
+
+    const hint = document.querySelector('.study-hint');
+    hint.textContent = selectedTables.length > 0
+      ? `Showing your selected table${tables.length > 1 ? 's' : ''}: ${tables.join(', ')}`
+      : 'Showing all tables 2–12 (select specific tables on the main page to filter)';
+
+    const playBtn = document.getElementById('study-play-btn');
+    playBtn.textContent = selectedTables.length > 0 ? '▶ Ready — Start Game!' : '← Pick tables first';
+
+    const grid = document.getElementById('study-grid');
+    grid.innerHTML = tables.map(n => `
+      <div class="study-card">
+        <h3>× ${n} Table</h3>
+        ${[1,2,3,4,5,6,7,8,9,10,11,12].map(i => `
+          <div class="study-row">
+            <span class="eq">${n} × ${i}</span>
+            <span style="color:#c9a0ff">=</span>
+            <span class="ans">${n * i}</span>
+          </div>`).join('')}
+      </div>`).join('');
+
+    document.getElementById('screen-choose').style.display  = 'none';
+    document.getElementById('screen-game').style.display    = 'none';
+    document.getElementById('screen-results').style.display = 'none';
+    document.getElementById('screen-study').style.display   = 'block';
+  }
+
+  function startGame() {
+    playerName = document.getElementById('player-name').value.trim() || 'Player';
+    score = 0; streak = 0; currentQ = 0; missed = [];
+    questions = generateQuestions();
+    TOTAL = questions.length;
+    document.getElementById('q-total').textContent    = TOTAL;
+    document.getElementById('final-total').textContent = TOTAL;
+    document.getElementById('game-title').textContent  = `⚡ Go, ${playerName}! ⚡`;
+    document.getElementById('screen-choose').style.display  = 'none';
+    document.getElementById('screen-game').style.display    = 'block';
+    document.getElementById('screen-results').style.display = 'none';
+    showQuestion();
+  }
+
+  function generateQuestions() {
+    const pool = [];
+    selectedTables.forEach(n => { for (let i = 1; i <= 12; i++) pool.push([n, i]); });
+    for (let i = pool.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [pool[i], pool[j]] = [pool[j], pool[i]];
+    }
+    return pool;
+  }
+
+  function showQuestion() {
+    answered = false;
+    const [a, b] = questions[currentQ];
+    document.getElementById('question').textContent         = `${a} × ${b} = ?`;
+    document.getElementById('q-num').textContent            = currentQ + 1;
+    document.getElementById('score').textContent            = score;
+    document.getElementById('streak').textContent           = streak;
+    document.getElementById('progress-bar').style.width     = (currentQ / TOTAL * 100) + '%';
+    const input = document.getElementById('answer-input');
+    input.value = ''; input.className = 'answer-input'; input.disabled = false; input.focus();
+    document.getElementById('feedback').textContent = '';
+    document.getElementById('feedback').className   = 'feedback';
+  }
+
+  function submitAnswer() {
+    if (answered) return;
+    const input = document.getElementById('answer-input');
+    const val   = parseInt(input.value);
+    if (isNaN(val)) return;
+
+    const [a, b] = questions[currentQ];
+    const correct = a * b;
+    answered = true; input.disabled = true;
+
+    const feedback = document.getElementById('feedback');
+
+    if (val === correct) {
+      score++; streak++;
+      input.classList.add('correct');
+      const msgs = [
+        '⚡ CORRECT! The math gods are PLEASED!',
+        '🐉 A dragon just high-fived you!!',
+        '🔥 YOUR BRAIN IS LITERALLY ON FIRE!',
+        '🌟 WIZARDRY! Pure number wizardry!!',
+        '💫 Scientists are baffled by your genius!',
+        '🚀 Houston, we have a CORRECT ANSWER!',
+        '🦄 A unicorn appeared because you got it right!',
+        '👾 MATH LASER ACTIVATED!! PEW PEW!!',
+        '🎸 That answer SHREDDED!! 🤘',
+        '🍕 Even the pizza is impressed!!',
+        '🦕 A dinosaur roared in your honour!!',
+        '🌈 RAINBOWS ARE BURSTING EVERYWHERE!!',
+        '🧠 Your brain has EVOLVED to a new level!!',
+        '🏆 KINGS AND QUEENS CHEER YOUR NAME!!',
+        '🌋 A VOLCANO ERUPTED WITH HAPPINESS!!',
+      ];
+      feedback.textContent = streak >= 3
+        ? `🔥 ${streak} IN A ROW!! THE UNIVERSE IS TREMBLING!!`
+        : msgs[Math.floor(Math.random() * msgs.length)];
+      feedback.className = 'feedback correct';
+    } else {
+      streak = 0;
+      missed.push({ q: `${a} × ${b}`, correct, given: val });
+      input.classList.add('wrong');
+      feedback.textContent = `Not quite — the answer is ${correct}`;
+      feedback.className = 'feedback wrong';
+    }
+
+    document.getElementById('score').textContent  = score;
+    document.getElementById('streak').textContent = streak;
+
+    setTimeout(() => {
+      currentQ++;
+      if (currentQ >= TOTAL) showResults();
+      else showQuestion();
+    }, 1300);
+  }
+
+  function showResults() {
+    document.getElementById('screen-game').style.display    = 'none';
+    document.getElementById('screen-results').style.display = 'block';
+    document.getElementById('final-score').textContent      = score;
+    document.getElementById('progress-bar').style.width     = '100%';
+
+    const pct = score / TOTAL;
+    let title, msg, sub;
+
+    if (pct === 1) {
+      title = `🏆 FLAWLESS VICTORY, ${playerName}!! 🏆`;
+      msg   = '🐉⚡ 100% PERFECT!! THE MATH DRAGONS BOW BEFORE YOU!! ⚡🐉';
+      sub   = '🌋 Volcanoes erupted with joy. Scientists wept. You are the chosen one of multiplication!!';
+    } else if (pct >= 0.9) {
+      title = `🔥 NEARLY UNSTOPPABLE, ${playerName}!! 🔥`;
+      msg   = '🚀 SO CLOSE TO PERFECTION YOUR PENCIL IS GLOWING!!';
+      sub   = '🦄 Unicorns are doing backflips for you!! Just a couple more to slay!!';
+    } else if (pct >= 0.75) {
+      title = `⚡ SHOCKING BRILLIANCE, ${playerName}!! ⚡`;
+      msg   = '🌟 Your brain is so powerful it knocked a satellite off course!!';
+      sub   = '🐲 The dragons are impressed. Keep training and you\'ll be UNSTOPPABLE!!';
+    } else if (pct >= 0.5) {
+      title = `💫 GREAT EFFORT, ${playerName}!! 💫`;
+      msg   = '🎸 You\'re like a rockstar who\'s still learning the solo — SO EPIC!!';
+      sub   = '🌈 Every mistake is just a dragon you haven\'t defeated YET!! Keep going!!';
+    } else {
+      title = `💪 WARRIOR IN TRAINING, ${playerName}!! 💪`;
+      msg   = '🥚 Even the greatest dragons hatched from an egg!! You\'re just getting started!!';
+      sub   = '⚡ Review the ones below, practice hard, and come back STRONGER THAN EVER!!';
+    }
+
+    document.getElementById('results-title').textContent  = title;
+    document.getElementById('result-message').textContent = msg;
+    document.getElementById('result-sub').textContent     = sub;
+
+    const missedSection = document.getElementById('missed-section');
+    if (missed.length === 0) {
+      missedSection.innerHTML = `<div class="all-correct-banner">🎉 WOW!! You got EVERY SINGLE ONE right!! Not a single dragon survived your brain!! 🐉💥</div>`;
+    } else {
+      missedSection.innerHTML = `
+        <h3>⚡ Study these — defeat them next time! ⚡</h3>
+        <ul class="missed-list">
+          ${missed.map(m => `
+            <li>
+              <span style="font-weight:bold;font-size:1.05rem">${m.q}</span>
+              <span>
+                <span class="wrong-answer">you said ${m.given}</span>
+                <span class="correct-answer">= ${m.correct}</span>
+              </span>
+            </li>`).join('')}
+        </ul>`;
+    }
+  }
+</script>
+</body>
+</html>
