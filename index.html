@@ -15,6 +15,7 @@
       justify-content: center;
       color: white;
       overflow-x: hidden;
+      overflow-y: auto;
       position: relative;
       transition: background 0.6s ease;
       background: linear-gradient(135deg, #0d0025, #1a0040, #00001a, #001a2e);
@@ -37,10 +38,7 @@
       padding: 20px;
     }
 
-    /* scrollable screens */
-    body { overflow-y: auto; }
-
-    #screen-choose, #screen-results {
+    #screen-choose, #screen-results, #screen-study, #screen-players, #screen-mastery, #screen-progress {
       padding-bottom: 20px;
     }
 
@@ -86,24 +84,6 @@
     .theme-btn[data-theme="waterfalls"].selected { border-color: #00f0ff; background: rgba(0,240,255,0.15); box-shadow: 0 0 16px rgba(0,240,255,0.4); }
     .theme-btn[data-theme="marshmallow"].selected{ border-color: #ffb3e6; background: rgba(255,179,230,0.18); box-shadow: 0 0 16px rgba(255,105,180,0.4); }
     .theme-btn[data-theme="fairy"].selected      { border-color: #ffd200; background: rgba(255,210,0,0.15);  box-shadow: 0 0 16px rgba(255,210,0,0.4); }
-
-    /* ── Name input ── */
-    .name-input-wrap { margin-bottom: 16px; }
-    .name-input-wrap label { display: block; color: #c9a0ff; margin-bottom: 7px; font-size: 0.95rem; }
-    .name-input {
-      font-size: 1.15rem;
-      text-align: center;
-      padding: 10px 18px;
-      border-radius: 14px;
-      border: 2px solid rgba(200,100,255,0.4);
-      background: rgba(100,0,200,0.15);
-      color: white;
-      outline: none;
-      width: 240px;
-      transition: border-color 0.2s;
-    }
-    .name-input:focus { border-color: #ff6af7; }
-    .name-input::placeholder { color: rgba(255,255,255,0.3); }
 
     /* ── Table grid ── */
     #screen-choose .tables {
@@ -163,13 +143,30 @@
       padding: 13px 20px;
       border-radius: 16px;
       cursor: pointer;
-      margin: 12px 0 6px;
+      margin: 8px 0 6px;
       text-shadow: 0 1px 3px rgba(0,0,0,0.5);
       box-shadow: 0 4px 24px rgba(255,100,0,0.5);
       transition: transform 0.15s, box-shadow 0.15s;
       animation: rainbow-pulse 3s ease-in-out infinite;
     }
     .super-btn:hover { transform: scale(1.04); box-shadow: 0 6px 32px rgba(255,100,0,0.7); }
+
+    .mastery-start-btn {
+      display: block;
+      width: 100%;
+      background: linear-gradient(90deg, #ffd200, #ff9500);
+      color: #1a0040;
+      font-size: 1rem;
+      font-weight: bold;
+      border: none;
+      padding: 13px 20px;
+      border-radius: 16px;
+      cursor: pointer;
+      margin: 8px 0 6px;
+      box-shadow: 0 4px 20px rgba(255,210,0,0.4);
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .mastery-start-btn:hover { transform: scale(1.04); box-shadow: 0 6px 28px rgba(255,210,0,0.6); }
 
     @keyframes rainbow-pulse {
       0%,100% { filter: brightness(1); }
@@ -422,12 +419,6 @@
     }
     .show-all-btn:hover { background: rgba(255,210,0,0.15); border-color: #ffd200; }
 
-    .study-hint {
-      color: #c9a0ff;
-      font-size: 0.88rem;
-      margin-bottom: 14px;
-    }
-
     .study-btn {
       background: linear-gradient(90deg, #00f0ff, #007aff);
       color: #001428;
@@ -485,6 +476,388 @@
       font-size: 1.05rem;
       color: #34c759;
     }
+
+    /* ── Player Picker Screen ── */
+    #screen-players { display: none; }
+
+    .player-screen-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+    .player-count-badge {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(200,100,255,0.3);
+      color: #c9a0ff;
+      font-size: 0.82rem;
+      padding: 4px 12px;
+      border-radius: 20px;
+    }
+
+    .players-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .player-card {
+      background: rgba(80,0,160,0.2);
+      border: 2px solid rgba(200,100,255,0.25);
+      border-radius: 18px;
+      padding: 16px 10px 12px;
+      cursor: pointer;
+      transition: all 0.18s;
+      position: relative;
+    }
+    .player-card:hover { border-color: #ff6af7; background: rgba(255,100,247,0.15); transform: scale(1.03); }
+    .player-card.active {
+      border-color: #ffd200;
+      background: linear-gradient(135deg, rgba(255,210,0,0.2), rgba(255,100,247,0.15));
+      box-shadow: 0 0 18px rgba(255,210,0,0.4);
+    }
+
+    .player-avatar { font-size: 2.4rem; display: block; margin-bottom: 6px; }
+    .player-name { font-size: 0.88rem; font-weight: bold; color: white; word-break: break-word; }
+    .active-crown {
+      position: absolute;
+      top: -10px; left: 50%;
+      transform: translateX(-50%);
+      font-size: 1.1rem;
+    }
+    .player-delete {
+      position: absolute;
+      top: 6px; right: 8px;
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.3);
+      cursor: pointer;
+      border: none;
+      background: none;
+      padding: 2px 4px;
+      line-height: 1;
+      transition: color 0.15s;
+    }
+    .player-delete:hover { color: #ff3b30; }
+
+    .add-player-card {
+      background: rgba(255,255,255,0.04);
+      border: 2px dashed rgba(200,100,255,0.3);
+      border-radius: 18px;
+      padding: 16px 10px 12px;
+      cursor: pointer;
+      transition: all 0.18s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100px;
+    }
+    .add-player-card:hover { border-color: #ff6af7; background: rgba(255,100,247,0.08); }
+    .add-player-card .add-icon { font-size: 1.8rem; margin-bottom: 4px; }
+    .add-player-card .add-label { font-size: 0.8rem; color: #c9a0ff; }
+
+    .play-as-btn {
+      display: block;
+      width: 100%;
+      background: linear-gradient(90deg, #34c759, #00f0ff);
+      color: #001a10;
+      font-size: 1.1rem;
+      font-weight: bold;
+      border: none;
+      padding: 14px 20px;
+      border-radius: 16px;
+      cursor: pointer;
+      margin-bottom: 10px;
+      box-shadow: 0 4px 20px rgba(52,199,89,0.4);
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .play-as-btn:hover { transform: scale(1.03); box-shadow: 0 6px 28px rgba(52,199,89,0.5); }
+    .play-as-btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
+
+    /* ── Add Player Modal ── */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-overlay.open { display: flex; }
+
+    .modal-box {
+      background: linear-gradient(135deg, #1a0040, #001428);
+      border: 2px solid rgba(200,100,255,0.4);
+      border-radius: 24px;
+      padding: 28px 24px;
+      width: 90%;
+      max-width: 380px;
+      box-shadow: 0 0 60px rgba(180,0,255,0.3);
+    }
+    .modal-box h2 {
+      font-size: 1.4rem;
+      margin-bottom: 16px;
+      background: linear-gradient(90deg, #ff6af7, #ffd200);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .avatar-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+    .avatar-opt {
+      font-size: 2rem;
+      padding: 10px;
+      border-radius: 14px;
+      border: 2px solid rgba(200,100,255,0.2);
+      background: rgba(80,0,160,0.2);
+      cursor: pointer;
+      transition: all 0.15s;
+      text-align: center;
+    }
+    .avatar-opt:hover { background: rgba(255,100,247,0.2); border-color: #ff6af7; transform: scale(1.1); }
+    .avatar-opt.selected { border-color: #ffd200; background: rgba(255,210,0,0.2); box-shadow: 0 0 12px rgba(255,210,0,0.4); }
+
+    .modal-name-input {
+      width: 100%;
+      font-size: 1.1rem;
+      text-align: center;
+      padding: 12px 16px;
+      border-radius: 14px;
+      border: 2px solid rgba(200,100,255,0.4);
+      background: rgba(100,0,200,0.15);
+      color: white;
+      outline: none;
+      margin-bottom: 18px;
+      transition: border-color 0.2s;
+    }
+    .modal-name-input:focus { border-color: #ff6af7; }
+    .modal-name-input::placeholder { color: rgba(255,255,255,0.3); }
+
+    .modal-btns { display: flex; gap: 10px; }
+    .modal-add-btn {
+      flex: 1;
+      background: linear-gradient(90deg, #ff6af7, #ffd200);
+      color: #1a0040;
+      font-size: 1rem;
+      font-weight: bold;
+      border: none;
+      padding: 12px;
+      border-radius: 14px;
+      cursor: pointer;
+      transition: transform 0.15s;
+    }
+    .modal-add-btn:hover { transform: scale(1.04); }
+    .modal-add-btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
+    .modal-cancel-btn {
+      flex: 1;
+      background: rgba(255,255,255,0.06);
+      color: #c9a0ff;
+      font-size: 1rem;
+      font-weight: bold;
+      border: 2px solid rgba(200,100,255,0.3);
+      padding: 12px;
+      border-radius: 14px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .modal-cancel-btn:hover { background: rgba(200,100,255,0.15); }
+
+    /* ── Mastery Screen ── */
+    #screen-mastery { display: none; }
+
+    .mastery-intro {
+      background: rgba(255,210,0,0.08);
+      border: 1px solid rgba(255,210,0,0.3);
+      border-radius: 16px;
+      padding: 14px 16px;
+      margin-bottom: 18px;
+      font-size: 0.9rem;
+      color: #ffd200;
+      line-height: 1.5;
+    }
+
+    .mastery-table-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .mastery-table-btn {
+      background: rgba(120,0,200,0.22);
+      border: 2px solid rgba(200,100,255,0.35);
+      color: white;
+      font-size: 1.6rem;
+      font-weight: bold;
+      padding: 18px 0;
+      border-radius: 16px;
+      cursor: pointer;
+      transition: all 0.18s;
+      position: relative;
+    }
+    .mastery-table-btn:hover { background: rgba(255,100,247,0.3); border-color: #ff6af7; }
+    .mastery-table-btn.selected {
+      background: linear-gradient(135deg, rgba(255,210,0,0.35), rgba(255,100,247,0.25));
+      border-color: #ffd200;
+      box-shadow: 0 0 14px rgba(255,210,0,0.5);
+    }
+    .mastery-table-btn.mastered {
+      border-color: #34c759;
+      background: rgba(52,199,89,0.15);
+    }
+    .mastery-table-btn .mastered-badge {
+      position: absolute;
+      top: -8px; right: -6px;
+      font-size: 1rem;
+    }
+
+    .mastery-pip-row {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 18px;
+    }
+    .mastery-pip {
+      width: 36px; height: 14px;
+      border-radius: 7px;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(200,100,255,0.3);
+      transition: all 0.3s;
+    }
+    .mastery-pip.filled {
+      background: linear-gradient(90deg, #ffd200, #ff9500);
+      border-color: #ffd200;
+      box-shadow: 0 0 8px rgba(255,210,0,0.5);
+    }
+    .mastery-pip.label { color: #c9a0ff; font-size: 0.8rem; margin: auto 0; background: none; border: none; width: auto; }
+
+    .mastery-begin-btn {
+      display: block;
+      width: 100%;
+      background: linear-gradient(90deg, #ffd200, #ff6af7);
+      color: #1a0040;
+      font-size: 1.1rem;
+      font-weight: bold;
+      border: none;
+      padding: 14px;
+      border-radius: 16px;
+      cursor: pointer;
+      margin-bottom: 10px;
+      box-shadow: 0 4px 20px rgba(255,210,0,0.4);
+      transition: transform 0.15s;
+    }
+    .mastery-begin-btn:hover { transform: scale(1.03); }
+    .mastery-begin-btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
+
+    /* mastery game mode banner */
+    .mastery-mode-banner {
+      background: linear-gradient(90deg, rgba(255,210,0,0.15), rgba(255,100,247,0.1));
+      border: 1px solid rgba(255,210,0,0.4);
+      border-radius: 12px;
+      padding: 10px 14px;
+      margin-bottom: 14px;
+      font-size: 0.9rem;
+      color: #ffd200;
+    }
+
+    /* ── Progress Screen ── */
+    #screen-progress { display: none; }
+
+    .tab-bar {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+    .tab-btn {
+      background: rgba(255,255,255,0.06);
+      border: 2px solid rgba(200,100,255,0.2);
+      color: #c9a0ff;
+      font-size: 0.9rem;
+      font-weight: bold;
+      padding: 8px 18px;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .tab-btn.active { background: rgba(255,100,247,0.2); border-color: #ff6af7; color: white; }
+    .tab-btn:hover { background: rgba(200,100,255,0.15); }
+
+    .stats-badges {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    .stat-badge {
+      background: rgba(80,0,160,0.25);
+      border: 2px solid rgba(200,100,255,0.3);
+      border-radius: 16px;
+      padding: 12px 16px;
+      text-align: center;
+      min-width: 90px;
+    }
+    .stat-badge .badge-val { font-size: 1.8rem; font-weight: bold; color: #ffd200; display: block; }
+    .stat-badge .badge-lbl { font-size: 0.78rem; color: #c9a0ff; }
+
+    .mastery-progress-section h3 {
+      color: #c9a0ff;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 14px;
+    }
+
+    .mastery-progress-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .mp-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .mp-label {
+      font-size: 0.95rem;
+      font-weight: bold;
+      color: white;
+      min-width: 44px;
+      text-align: right;
+    }
+    .mp-pips {
+      display: flex;
+      gap: 6px;
+      flex: 1;
+    }
+    .mp-pip {
+      flex: 1;
+      height: 14px;
+      border-radius: 7px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(200,100,255,0.2);
+      transition: all 0.3s;
+    }
+    .mp-pip.filled {
+      background: linear-gradient(90deg, #ffd200, #ff9500);
+      border-color: #ffd200;
+      box-shadow: 0 0 6px rgba(255,210,0,0.4);
+    }
+    .mp-pip.mastered-all {
+      background: linear-gradient(90deg, #34c759, #00f0ff);
+      border-color: #34c759;
+      box-shadow: 0 0 8px rgba(52,199,89,0.5);
+    }
+    .mp-status { font-size: 1rem; min-width: 20px; }
   </style>
 </head>
 <body>
@@ -493,8 +866,33 @@
 
 <div class="container">
 
+  <!-- SCREEN 0: Player Picker -->
+  <div id="screen-players">
+    <h1>⚡ Multiplication Master ⚡</h1>
+    <p class="subtitle">Who's playing today?</p>
+
+    <div class="player-screen-header">
+      <span style="color:#c9a0ff;font-size:0.9rem;font-weight:bold;">Choose your player</span>
+      <span class="player-count-badge" id="player-count-badge">0 / 10 used</span>
+    </div>
+
+    <div class="players-grid" id="players-grid">
+      <!-- player cards rendered by JS -->
+    </div>
+
+    <button class="play-as-btn" id="play-as-btn" disabled>▶ Play as …</button>
+    <button class="study-btn" style="display:block;width:100%;margin:0;" id="players-study-btn">📖 Study Guide</button>
+  </div>
+
   <!-- SCREEN 1: Choose -->
-  <div id="screen-choose">
+  <div id="screen-choose" style="display:none;">
+    <!-- active player banner -->
+    <div id="active-player-banner" style="display:flex;align-items:center;gap:10px;background:rgba(255,210,0,0.1);border:1px solid rgba(255,210,0,0.3);border-radius:14px;padding:8px 14px;margin-bottom:14px;cursor:pointer;" onclick="showPlayers()">
+      <span id="banner-avatar" style="font-size:1.6rem;"></span>
+      <span id="banner-name" style="font-weight:bold;color:#ffd200;font-size:1rem;"></span>
+      <span style="margin-left:auto;color:#c9a0ff;font-size:0.8rem;">switch ›</span>
+    </div>
+
     <h1>⚡ Multiplication Master ⚡</h1>
     <p class="subtitle">🐉 The ultimate times-tables adventure 🐉</p>
 
@@ -513,12 +911,6 @@
       <button class="theme-btn" data-theme="fairy">
         <span class="theme-icon">🧚🟦</span>Fairy Legos
       </button>
-    </div>
-
-    <!-- Name -->
-    <div class="name-input-wrap">
-      <label for="player-name">What's your name?</label>
-      <input class="name-input" id="player-name" type="text" placeholder="Enter your name" maxlength="20" />
     </div>
 
     <!-- Table buttons -->
@@ -540,9 +932,17 @@
       🔥 SUPER EXTRA AMAZING CHALLENGE 🔥<br>
       <small style="font-weight:normal;font-size:0.8rem;">All tables 2–12</small>
     </button>
+
+    <button class="mastery-start-btn" id="mastery-nav-btn">
+      🏆 Ready to Test Mastery?
+    </button>
+
     <br>
-    <button class="start-btn" id="start-btn" disabled>▶ Start Game</button>
+    <button class="start-btn" id="start-btn" disabled>▶ Start Practice</button>
     <button class="study-btn" id="study-btn">📖 Study Guide</button>
+    <br>
+    <button class="back-btn" style="margin-top:8px;" onclick="showPlayers()">← Switch Player</button>
+    <button class="tab-btn" style="margin-top:8px;" onclick="showProgress()">📊 My Progress</button>
   </div>
 
   <!-- SCREEN 4: Study Guide -->
@@ -550,7 +950,6 @@
     <button class="back-btn" id="study-back-btn">← Back to Main</button>
     <h1>📖 Study Guide</h1>
 
-    <!-- Table picker inside study guide -->
     <p style="color:#c9a0ff;font-size:0.88rem;margin-bottom:10px;">Which tables do you want to study?</p>
     <div class="study-picker">
       <button class="study-pick-btn study-pick-all selected" id="study-pick-all">All</button>
@@ -581,6 +980,9 @@
   <div id="screen-game">
     <button class="back-btn" id="back-btn">← Back</button>
     <h1 id="game-title">⚡ Go! ⚡</h1>
+    <div id="mastery-mode-banner" class="mastery-mode-banner" style="display:none;">
+      🏆 Mastery Test — zero errors needed! One mistake = try again.
+    </div>
     <div class="stats">
       <span>Q <span id="q-num">1</span>/<span id="q-total">12</span></span>
       <span>Score <span id="score">0</span></span>
@@ -620,11 +1022,82 @@
     </div>
     <div class="result-message" id="result-message"></div>
     <div class="result-sub" id="result-sub"></div>
+    <div id="mastery-result-banner" style="display:none;background:linear-gradient(135deg,rgba(255,210,0,0.15),rgba(52,199,89,0.15));border:2px solid rgba(255,210,0,0.4);border-radius:16px;padding:16px;margin-bottom:16px;"></div>
     <div class="missed-section" id="missed-section"></div>
     <button class="restart-btn" id="restart-btn">⚡ Play Again</button>
     <button class="menu-btn" id="menu-btn">🐉 Change Tables</button>
   </div>
 
+  <!-- SCREEN 5: Mastery Test Picker -->
+  <div id="screen-mastery">
+    <button class="back-btn" id="mastery-back-btn">← Back to Main</button>
+    <h1>🏆 Mastery Test</h1>
+    <p class="subtitle">Pick ONE table to test. Zero errors = 1 pip. 5 pips = MASTERED!</p>
+
+    <div class="mastery-intro">
+      Complete all 12 questions (×1–×12) with <strong>ZERO mistakes</strong> to earn a pip.<br>
+      Earn 5 pips on a table to prove you've truly mastered it!
+    </div>
+
+    <div class="mastery-table-grid" id="mastery-table-grid">
+      <!-- rendered by JS -->
+    </div>
+
+    <div style="margin-bottom:6px;color:#c9a0ff;font-size:0.85rem;">Progress for selected table:</div>
+    <div class="mastery-pip-row" id="mastery-pip-preview">
+      <span class="mastery-pip"></span>
+      <span class="mastery-pip"></span>
+      <span class="mastery-pip"></span>
+      <span class="mastery-pip"></span>
+      <span class="mastery-pip"></span>
+      <span style="color:#c9a0ff;font-size:0.8rem;margin-left:6px;">0/5</span>
+    </div>
+
+    <button class="mastery-begin-btn" id="mastery-begin-btn" disabled>🏆 Begin Mastery Test</button>
+    <button class="back-btn" style="margin-top:4px;" id="mastery-progress-btn">📊 View My Progress</button>
+  </div>
+
+  <!-- SCREEN 6: Progress -->
+  <div id="screen-progress">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+      <button class="back-btn" style="margin-bottom:0;" id="progress-back-btn">← Back</button>
+      <div style="display:flex;align-items:center;gap:8px;flex:1;justify-content:flex-end;">
+        <span id="progress-avatar" style="font-size:1.8rem;"></span>
+        <span id="progress-name" style="font-weight:bold;color:#ffd200;font-size:1rem;"></span>
+      </div>
+    </div>
+    <h1>📊 Progress</h1>
+
+    <div class="stats-badges" id="progress-stats-badges">
+      <!-- rendered by JS -->
+    </div>
+
+    <div class="mastery-progress-section">
+      <h3>🏆 Mastery Progress</h3>
+      <div class="mastery-progress-grid" id="mastery-progress-grid">
+        <!-- rendered by JS -->
+      </div>
+    </div>
+
+    <button class="mastery-start-btn" style="margin-top:10px;" onclick="showMastery()">🏆 Take a Mastery Test</button>
+    <button class="back-btn" style="margin-top:8px;" onclick="showChoose()">← Back to Main</button>
+  </div>
+
+</div>
+
+<!-- Add Player Modal -->
+<div class="modal-overlay" id="add-player-modal">
+  <div class="modal-box">
+    <h2>✨ New Player</h2>
+    <div class="avatar-grid" id="avatar-grid">
+      <!-- rendered by JS -->
+    </div>
+    <input class="modal-name-input" id="modal-name-input" type="text" placeholder="Enter player name" maxlength="16" />
+    <div class="modal-btns">
+      <button class="modal-cancel-btn" id="modal-cancel-btn">Cancel</button>
+      <button class="modal-add-btn" id="modal-add-btn" disabled>Add Player</button>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -682,39 +1155,31 @@
     const pool     = isMain ? activeTheme.main : activeTheme.accent;
     const emoji    = pool[Math.floor(Math.random() * pool.length)];
     const big      = isMain;
-
-    // Constrain to top or bottom 22% of screen so they stay out of the game area
     const band = canvas.height * 0.22;
     const y = Math.random() < 0.5
-      ? Math.random() * band                              // top band
-      : canvas.height - band + Math.random() * band;     // bottom band
-
+      ? Math.random() * band
+      : canvas.height - band + Math.random() * band;
     const obj = {
-      emoji,
-      y,
+      emoji, y,
       size:     big ? (45 + Math.random() * 30) : (25 + Math.random() * 20),
       speedX:   (Math.random() * 1.2 + 0.4) * (Math.random() < 0.5 ? 1 : -1),
       speedY:   (Math.random() - 0.5) * 0.3,
-      alpha:    0,
-      fadeIn:   true,
-      life:     0,
-      maxLife:  280 + Math.random() * 220,
+      alpha:    0, fadeIn: true,
+      life: 0, maxLife: 280 + Math.random() * 220,
       rotation: (Math.random() - 0.5) * 0.4,
       rotSpeed: (Math.random() - 0.5) * 0.012,
-      flicker:  !isMain && Math.random() < 0.3,
-      flickerT: 0,
-      isMain,
+      flicker: !isMain && Math.random() < 0.3,
+      flickerT: 0, isMain,
     };
     obj.x = obj.speedX > 0 ? -100 : canvas.width + 100;
     floaters.push(obj);
   }
 
-  // Seed initial floaters spread across perimeter bands
   for (let i = 0; i < 14; i++) {
     spawnFloater();
     const f = floaters[i];
-    f.x     = Math.random() * canvas.width;
-    f.life  = Math.random() * f.maxLife * 0.5;
+    f.x = Math.random() * canvas.width;
+    f.life = Math.random() * f.maxLife * 0.5;
     f.alpha = 0.2 + Math.random() * 0.15;
     f.fadeIn = false;
   }
@@ -737,21 +1202,16 @@
 
   function drawFrame() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    // Floaters
     for (let i = floaters.length - 1; i >= 0; i--) {
       const f = floaters[i];
       f.life++; f.x += f.speedX; f.y += f.speedY; f.rotation += f.rotSpeed;
-
       if (f.fadeIn) {
         f.alpha = Math.min(0.30, f.alpha + 0.012);
         if (f.alpha >= 0.30) f.fadeIn = false;
       }
       if (f.life > f.maxLife * 0.75) f.alpha = Math.max(0, f.alpha - 0.016);
-
       let a = f.alpha;
       if (f.flicker) { f.flickerT++; a *= 0.55 + 0.45 * Math.abs(Math.sin(f.flickerT * 0.25)); }
-
       ctx.save();
       ctx.globalAlpha = a;
       ctx.font = `${f.size}px serif`;
@@ -762,14 +1222,11 @@
       if (f.isMain && f.speedX < 0) ctx.scale(-1, 1);
       ctx.fillText(f.emoji, 0, 0);
       ctx.restore();
-
       if (f.life >= f.maxLife || f.alpha <= 0) floaters.splice(i, 1);
     }
-
     spawnT++;
     if (spawnT > 35 && floaters.length < 20) { spawnFloater(); spawnT = 0; }
 
-    // Lightning strikes
     if (activeTheme.strikeOn) {
       strikeT++;
       if (strikeT > 150 + Math.random() * 180) {
@@ -778,7 +1235,6 @@
         strikeT = 0;
       }
     }
-
     for (let i = strikes.length - 1; i >= 0; i--) {
       const s = strikes[i];
       s.life++;
@@ -796,23 +1252,19 @@
       ctx.restore();
       if (s.life >= s.maxLife) strikes.splice(i, 1);
     }
-
     requestAnimationFrame(drawFrame);
   }
-
   drawFrame();
 
-  // ── Apply theme ───────────────────────────────────────────────────
   function applyTheme(key) {
     activeTheme = THEMES[key];
     document.body.style.background = activeTheme.bg;
-    // reset floaters to new theme emojis
     floaters.length = 0;
     for (let i = 0; i < 14; i++) {
       spawnFloater();
       const f = floaters[i];
-      f.x     = Math.random() * canvas.width;
-      f.life  = Math.random() * f.maxLife * 0.5;
+      f.x = Math.random() * canvas.width;
+      f.life = Math.random() * f.maxLife * 0.5;
       f.alpha = 0.18 + Math.random() * 0.12;
       f.fadeIn = false;
     }
@@ -826,8 +1278,247 @@
     });
   });
 
+  // ── Player data ───────────────────────────────────────────────────
+  const AVATARS = ['🐉','🦄','🚀','⚡','🌈','🔥','🦊','🐬','🧚','🦁'];
+
+  function loadPlayers() {
+    try { return JSON.parse(localStorage.getItem('mm_players') || '[]'); } catch { return []; }
+  }
+  function savePlayers(players) {
+    localStorage.setItem('mm_players', JSON.stringify(players));
+  }
+  function loadCurrentId() {
+    return localStorage.getItem('mm_current_player') || null;
+  }
+  function saveCurrentId(id) {
+    localStorage.setItem('mm_current_player', id);
+  }
+
+  function getPlayerById(id) {
+    return loadPlayers().find(p => p.id === id) || null;
+  }
+
+  function createPlayer(name, avatar) {
+    const players = loadPlayers();
+    if (players.length >= 10) return null;
+    const id = 'p_' + Date.now();
+    const player = {
+      id, name, avatar,
+      mastery: { 2:0, 3:0, 4:0, 5:0, 6:0, 7:0, 8:0, 9:0, 10:0, 11:0, 12:0 },
+      totalCorrect: 0,
+      totalRounds: 0,
+      streak: 0,
+    };
+    players.push(player);
+    savePlayers(players);
+    return player;
+  }
+
+  function updatePlayer(id, updates) {
+    const players = loadPlayers();
+    const idx = players.findIndex(p => p.id === id);
+    if (idx === -1) return;
+    Object.assign(players[idx], updates);
+    savePlayers(players);
+  }
+
+  function deletePlayer(id) {
+    let players = loadPlayers();
+    players = players.filter(p => p.id !== id);
+    savePlayers(players);
+    if (loadCurrentId() === id) {
+      saveCurrentId(players.length > 0 ? players[0].id : null);
+    }
+  }
+
+  // ── Active player ─────────────────────────────────────────────────
+  let currentPlayerId = loadCurrentId();
+
+  function getCurrentPlayer() {
+    if (!currentPlayerId) return null;
+    return getPlayerById(currentPlayerId);
+  }
+
+  // ── Player Picker Screen ──────────────────────────────────────────
+  function renderPlayersGrid() {
+    const players = loadPlayers();
+    const grid = document.getElementById('players-grid');
+    const badge = document.getElementById('player-count-badge');
+    badge.textContent = `${players.length} / 10 used`;
+
+    let html = '';
+    players.forEach(p => {
+      const isActive = p.id === currentPlayerId;
+      html += `
+        <div class="player-card ${isActive ? 'active' : ''}" data-pid="${p.id}">
+          ${isActive ? '<span class="active-crown">👑</span>' : ''}
+          <button class="player-delete" data-delete="${p.id}" title="Remove player">✕</button>
+          <span class="player-avatar">${p.avatar}</span>
+          <div class="player-name">${p.name}</div>
+        </div>`;
+    });
+
+    if (players.length < 10) {
+      html += `
+        <div class="add-player-card" id="add-player-card">
+          <span class="add-icon">＋</span>
+          <span class="add-label">Add Player</span>
+        </div>`;
+    }
+
+    grid.innerHTML = html;
+
+    // click player card
+    grid.querySelectorAll('.player-card').forEach(card => {
+      card.addEventListener('click', e => {
+        if (e.target.closest('.player-delete')) return;
+        currentPlayerId = card.dataset.pid;
+        saveCurrentId(currentPlayerId);
+        renderPlayersGrid();
+        updatePlayAsBtn();
+      });
+    });
+
+    // delete buttons
+    grid.querySelectorAll('.player-delete').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        const pid = btn.dataset.delete;
+        const p = getPlayerById(pid);
+        if (p && confirm(`Remove ${p.name}? Their progress will be deleted.`)) {
+          deletePlayer(pid);
+          if (!currentPlayerId) currentPlayerId = null;
+          renderPlayersGrid();
+          updatePlayAsBtn();
+        }
+      });
+    });
+
+    // add player card
+    const addCard = document.getElementById('add-player-card');
+    if (addCard) addCard.addEventListener('click', openAddPlayerModal);
+
+    updatePlayAsBtn();
+  }
+
+  function updatePlayAsBtn() {
+    const btn = document.getElementById('play-as-btn');
+    const p = getCurrentPlayer();
+    if (p) {
+      btn.textContent = `▶ Play as ${p.avatar} ${p.name}`;
+      btn.disabled = false;
+    } else {
+      btn.textContent = '▶ Play as …';
+      btn.disabled = true;
+    }
+  }
+
+  document.getElementById('play-as-btn').addEventListener('click', () => {
+    if (getCurrentPlayer()) showChoose();
+  });
+
+  document.getElementById('players-study-btn').addEventListener('click', () => {
+    showStudy();
+  });
+
+  function showPlayers() {
+    hideAllScreens();
+    renderPlayersGrid();
+    document.getElementById('screen-players').style.display = 'block';
+  }
+
+  // ── Add Player Modal ──────────────────────────────────────────────
+  let selectedAvatar = null;
+
+  function openAddPlayerModal() {
+    selectedAvatar = null;
+    document.getElementById('modal-name-input').value = '';
+    document.getElementById('modal-add-btn').disabled = true;
+
+    const grid = document.getElementById('avatar-grid');
+    grid.innerHTML = AVATARS.map(a => `
+      <div class="avatar-opt" data-avatar="${a}">${a}</div>
+    `).join('');
+
+    grid.querySelectorAll('.avatar-opt').forEach(opt => {
+      opt.addEventListener('click', () => {
+        grid.querySelectorAll('.avatar-opt').forEach(o => o.classList.remove('selected'));
+        opt.classList.add('selected');
+        selectedAvatar = opt.dataset.avatar;
+        checkModalReady();
+      });
+    });
+
+    document.getElementById('add-player-modal').classList.add('open');
+    document.getElementById('modal-name-input').focus();
+  }
+
+  function checkModalReady() {
+    const name = document.getElementById('modal-name-input').value.trim();
+    document.getElementById('modal-add-btn').disabled = !(name.length > 0 && selectedAvatar);
+  }
+
+  document.getElementById('modal-name-input').addEventListener('input', checkModalReady);
+
+  document.getElementById('modal-cancel-btn').addEventListener('click', () => {
+    document.getElementById('add-player-modal').classList.remove('open');
+  });
+
+  document.getElementById('modal-add-btn').addEventListener('click', () => {
+    const name = document.getElementById('modal-name-input').value.trim();
+    if (!name || !selectedAvatar) return;
+    const p = createPlayer(name, selectedAvatar);
+    if (p) {
+      currentPlayerId = p.id;
+      saveCurrentId(currentPlayerId);
+    }
+    document.getElementById('add-player-modal').classList.remove('open');
+    renderPlayersGrid();
+    updatePlayAsBtn();
+  });
+
+  // close modal on overlay click
+  document.getElementById('add-player-modal').addEventListener('click', e => {
+    if (e.target === document.getElementById('add-player-modal')) {
+      document.getElementById('add-player-modal').classList.remove('open');
+    }
+  });
+
+  // ── Screen switching ──────────────────────────────────────────────
+  function hideAllScreens() {
+    ['screen-players','screen-choose','screen-study','screen-game','screen-results','screen-mastery','screen-progress']
+      .forEach(id => document.getElementById(id).style.display = 'none');
+  }
+
+  function showChoose() {
+    hideAllScreens();
+    document.getElementById('screen-choose').style.display = 'block';
+    // update active player banner
+    const p = getCurrentPlayer();
+    if (p) {
+      document.getElementById('banner-avatar').textContent = p.avatar;
+      document.getElementById('banner-name').textContent = p.name;
+      document.getElementById('active-player-banner').style.display = 'flex';
+    } else {
+      document.getElementById('active-player-banner').style.display = 'none';
+    }
+  }
+
+  function showProgress() {
+    hideAllScreens();
+    document.getElementById('screen-progress').style.display = 'block';
+    renderProgress();
+  }
+
+  function showMastery() {
+    hideAllScreens();
+    document.getElementById('screen-mastery').style.display = 'block';
+    masterySelectedTable = null;
+    renderMasteryPicker();
+  }
+
   // ── Game logic ────────────────────────────────────────────────────
-  let TOTAL      = 12;
+  let TOTAL = 12;
   let selectedTables = [];
   let questions  = [];
   let currentQ   = 0;
@@ -836,6 +1527,9 @@
   let missed     = [];
   let answered   = false;
   let playerName = '';
+  let isMasteryMode = false;
+  let masteryTable  = null;
+  let masteryFailed = false;
 
   document.querySelectorAll('.table-btn').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -859,22 +1553,37 @@
     document.getElementById('start-btn').disabled = false;
   });
 
-  document.getElementById('start-btn').addEventListener('click', startGame);
-  document.getElementById('restart-btn').addEventListener('click', startGame);
+  document.getElementById('mastery-nav-btn').addEventListener('click', showMastery);
+
+  document.getElementById('start-btn').addEventListener('click', () => startGame(false));
+  document.getElementById('restart-btn').addEventListener('click', () => {
+    if (isMasteryMode) startMasteryGame(masteryTable);
+    else startGame(false);
+  });
   document.getElementById('menu-btn').addEventListener('click', showChoose);
-  document.getElementById('back-btn').addEventListener('click', showChoose);
-  document.getElementById('results-back-btn').addEventListener('click', showChoose);
+  document.getElementById('back-btn').addEventListener('click', () => {
+    if (isMasteryMode) showMastery();
+    else showChoose();
+  });
+  document.getElementById('results-back-btn').addEventListener('click', () => {
+    if (isMasteryMode) showMastery();
+    else showChoose();
+  });
   document.getElementById('study-btn').addEventListener('click', showStudy);
   document.getElementById('study-back-btn').addEventListener('click', showChoose);
   document.getElementById('study-back-btn2').addEventListener('click', showChoose);
   document.getElementById('study-play-btn').addEventListener('click', () => {
-    if (selectedTables.length > 0) startGame();
+    if (selectedTables.length > 0) startGame(false);
     else showChoose();
   });
+  document.getElementById('mastery-back-btn').addEventListener('click', showChoose);
+  document.getElementById('mastery-progress-btn').addEventListener('click', showProgress);
+  document.getElementById('progress-back-btn').addEventListener('click', showChoose);
 
-  // Physical keyboard still works
+  // Physical keyboard
   document.addEventListener('keydown', e => {
-    if (!document.getElementById('screen-game').style.display || document.getElementById('screen-game').style.display === 'none') return;
+    if (document.getElementById('screen-game').style.display === 'none' ||
+        document.getElementById('screen-game').style.display === '') return;
     if (answered) return;
     const input = document.getElementById('answer-input');
     if (e.key === 'Enter') { submitAnswer(); return; }
@@ -893,18 +1602,12 @@
     else if (input.value.length < 4) { input.value += val; }
   });
 
-  function showChoose() {
-    document.getElementById('screen-choose').style.display  = 'block';
-    document.getElementById('screen-game').style.display    = 'none';
-    document.getElementById('screen-results').style.display = 'none';
-    document.getElementById('screen-study').style.display   = 'none';
-  }
-
+  // ── Study Guide ────────────────────────────────────────────────────
   let coverMode = false;
   let studyTables = [2,3,4,5,6,7,8,9,10,11,12];
+  let studyFromPlayers = false;
 
   function renderStudyGrid() {
-    // Reset cover mode whenever grid re-renders
     coverMode = false;
     document.getElementById('cover-toggle-btn').textContent = '🙈 Cover Answers';
     document.getElementById('show-all-btn').style.display = 'none';
@@ -931,16 +1634,13 @@
     });
   }
 
-  // Study guide table picker
   document.querySelectorAll('.study-pick-btn[data-sn]').forEach(btn => {
     btn.addEventListener('click', () => {
       const n = parseInt(btn.dataset.sn);
-      // Deselect "All"
       document.getElementById('study-pick-all').classList.remove('selected');
       if (btn.classList.contains('selected')) {
         btn.classList.remove('selected');
         studyTables = studyTables.filter(x => x !== n);
-        // If nothing selected, fall back to all
         if (studyTables.length === 0) {
           studyTables = [2,3,4,5,6,7,8,9,10,11,12];
           document.getElementById('study-pick-all').classList.add('selected');
@@ -962,8 +1662,8 @@
     renderStudyGrid();
   });
 
-  function showStudy() {
-    // Sync picker to match game selection if any, otherwise all
+  function showStudy(fromPlayers) {
+    studyFromPlayers = !!fromPlayers;
     if (selectedTables.length > 0) {
       studyTables = [...selectedTables].sort((a,b) => a - b);
       document.getElementById('study-pick-all').classList.remove('selected');
@@ -975,16 +1675,11 @@
       document.getElementById('study-pick-all').classList.add('selected');
       document.querySelectorAll('.study-pick-btn[data-sn]').forEach(b => b.classList.remove('selected'));
     }
-
     document.getElementById('study-play-btn').textContent =
       selectedTables.length > 0 ? '▶ Ready — Start Game!' : '▶ Start Game';
-
     renderStudyGrid();
-
-    document.getElementById('screen-choose').style.display  = 'none';
-    document.getElementById('screen-game').style.display    = 'none';
-    document.getElementById('screen-results').style.display = 'none';
-    document.getElementById('screen-study').style.display   = 'block';
+    hideAllScreens();
+    document.getElementById('screen-study').style.display = 'block';
   }
 
   document.getElementById('cover-toggle-btn').addEventListener('click', () => {
@@ -992,13 +1687,8 @@
     const btn = document.getElementById('cover-toggle-btn');
     const showAllBtn = document.getElementById('show-all-btn');
     document.querySelectorAll('.ans').forEach(el => {
-      if (coverMode) {
-        el.classList.add('covered');
-        el.textContent = '?';
-      } else {
-        el.classList.remove('covered');
-        el.textContent = el.dataset.val;
-      }
+      if (coverMode) { el.classList.add('covered'); el.textContent = '?'; }
+      else { el.classList.remove('covered'); el.textContent = el.dataset.val; }
     });
     btn.textContent = coverMode ? '👁 Uncover All' : '🙈 Cover Answers';
     showAllBtn.style.display = coverMode ? 'inline-block' : 'none';
@@ -1014,18 +1704,45 @@
     document.getElementById('show-all-btn').style.display = 'none';
   });
 
-  function startGame() {
-    playerName = document.getElementById('player-name').value.trim() || 'Player';
+  // ── Start Game ─────────────────────────────────────────────────────
+  function startGame(masteryMode, tableNum) {
+    isMasteryMode = masteryMode;
+    masteryTable  = tableNum || null;
+    masteryFailed = false;
+
+    const p = getCurrentPlayer();
+    playerName = p ? p.name : 'Player';
+
     score = 0; streak = 0; currentQ = 0; missed = [];
-    questions = generateQuestions();
+
+    if (masteryMode) {
+      // single table, all 12 in order
+      questions = [];
+      for (let i = 1; i <= 12; i++) questions.push([tableNum, i]);
+      // shuffle for fun
+      for (let i = questions.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [questions[i], questions[j]] = [questions[j], questions[i]];
+      }
+    } else {
+      questions = generateQuestions();
+    }
+
     TOTAL = questions.length;
-    document.getElementById('q-total').textContent    = TOTAL;
+    document.getElementById('q-total').textContent     = TOTAL;
     document.getElementById('final-total').textContent = TOTAL;
-    document.getElementById('game-title').textContent  = `⚡ Go, ${playerName}! ⚡`;
-    document.getElementById('screen-choose').style.display  = 'none';
-    document.getElementById('screen-game').style.display    = 'block';
-    document.getElementById('screen-results').style.display = 'none';
+    document.getElementById('game-title').textContent  = masteryMode
+      ? `🏆 Mastery: ×${tableNum}`
+      : `⚡ Go, ${playerName}! ⚡`;
+    document.getElementById('mastery-mode-banner').style.display = masteryMode ? 'block' : 'none';
+
+    hideAllScreens();
+    document.getElementById('screen-game').style.display = 'block';
     showQuestion();
+  }
+
+  function startMasteryGame(tableNum) {
+    startGame(true, tableNum);
   }
 
   function generateQuestions() {
@@ -1041,17 +1758,17 @@
   function showQuestion() {
     answered = false;
     const [a, b] = questions[currentQ];
-    document.getElementById('question').textContent         = `${a} × ${b} = ?`;
-    document.getElementById('q-num').textContent            = currentQ + 1;
-    document.getElementById('score').textContent            = score;
-    document.getElementById('streak').textContent           = streak;
-    document.getElementById('progress-bar').style.width     = (currentQ / TOTAL * 100) + '%';
+    document.getElementById('question').textContent     = `${a} × ${b} = ?`;
+    document.getElementById('q-num').textContent        = currentQ + 1;
+    document.getElementById('score').textContent        = score;
+    document.getElementById('streak').textContent       = streak;
+    document.getElementById('progress-bar').style.width = (currentQ / TOTAL * 100) + '%';
     const input = document.getElementById('answer-input');
     input.value = ''; input.className = 'answer-input'; input.disabled = false;
     document.getElementById('numpad').style.opacity = '1';
     document.getElementById('numpad').style.pointerEvents = 'auto';
     document.getElementById('feedback').textContent = '';
-    document.getElementById('feedback').className   = 'feedback';
+    document.getElementById('feedback').className = 'feedback';
   }
 
   function submitAnswer() {
@@ -1071,79 +1788,152 @@
     if (val === correct) {
       score++; streak++;
       input.classList.add('correct');
-      const msgs = [
-        '⚡ CORRECT! The math gods are PLEASED!',
-        '🐉 A dragon just high-fived you!!',
-        '🔥 YOUR BRAIN IS LITERALLY ON FIRE!',
-        '🌟 WIZARDRY! Pure number wizardry!!',
-        '💫 Scientists are baffled by your genius!',
-        '🚀 Houston, we have a CORRECT ANSWER!',
-        '🦄 A unicorn appeared because you got it right!',
-        '👾 MATH LASER ACTIVATED!! PEW PEW!!',
-        '🎸 That answer SHREDDED!! 🤘',
-        '🍕 Even the pizza is impressed!!',
-        '🦕 A dinosaur roared in your honour!!',
-        '🌈 RAINBOWS ARE BURSTING EVERYWHERE!!',
-        '🧠 Your brain has EVOLVED to a new level!!',
-        '🏆 KINGS AND QUEENS CHEER YOUR NAME!!',
-        '🌋 A VOLCANO ERUPTED WITH HAPPINESS!!',
-      ];
-      feedback.textContent = streak >= 3
-        ? `🔥 ${streak} IN A ROW!! THE UNIVERSE IS TREMBLING!!`
-        : msgs[Math.floor(Math.random() * msgs.length)];
-      feedback.className = 'feedback correct';
+      if (isMasteryMode) {
+        feedback.textContent = '✓ Perfect!';
+        feedback.className = 'feedback correct';
+      } else {
+        const msgs = [
+          '⚡ CORRECT! The math gods are PLEASED!',
+          '🐉 A dragon just high-fived you!!',
+          '🔥 YOUR BRAIN IS LITERALLY ON FIRE!',
+          '🌟 WIZARDRY! Pure number wizardry!!',
+          '💫 Scientists are baffled by your genius!',
+          '🚀 Houston, we have a CORRECT ANSWER!',
+          '🦄 A unicorn appeared because you got it right!',
+          '👾 MATH LASER ACTIVATED!! PEW PEW!!',
+          '🎸 That answer SHREDDED!! 🤘',
+          '🍕 Even the pizza is impressed!!',
+          '🦕 A dinosaur roared in your honour!!',
+          '🌈 RAINBOWS ARE BURSTING EVERYWHERE!!',
+          '🧠 Your brain has EVOLVED to a new level!!',
+          '🏆 KINGS AND QUEENS CHEER YOUR NAME!!',
+          '🌋 A VOLCANO ERUPTED WITH HAPPINESS!!',
+        ];
+        feedback.textContent = streak >= 3
+          ? `🔥 ${streak} IN A ROW!! THE UNIVERSE IS TREMBLING!!`
+          : msgs[Math.floor(Math.random() * msgs.length)];
+        feedback.className = 'feedback correct';
+      }
     } else {
       streak = 0;
       missed.push({ q: `${a} × ${b}`, correct, given: val });
       input.classList.add('wrong');
-      feedback.textContent = `Not quite — the answer is ${correct}`;
-      feedback.className = 'feedback wrong';
+      if (isMasteryMode) {
+        masteryFailed = true;
+        feedback.textContent = `✗ Oops! ${a} × ${b} = ${correct}`;
+        feedback.className = 'feedback wrong';
+      } else {
+        feedback.textContent = `Not quite — the answer is ${correct}`;
+        feedback.className = 'feedback wrong';
+      }
     }
 
     document.getElementById('score').textContent  = score;
     document.getElementById('streak').textContent = streak;
 
+    const delay = (isMasteryMode && masteryFailed) ? 2000 : 1300;
     setTimeout(() => {
       currentQ++;
       if (currentQ >= TOTAL) showResults();
+      else if (isMasteryMode && masteryFailed) showResults(); // end immediately on fail
       else showQuestion();
-    }, 1300);
+    }, delay);
   }
 
+  // ── Results ────────────────────────────────────────────────────────
   function showResults() {
-    document.getElementById('screen-game').style.display    = 'none';
+    hideAllScreens();
     document.getElementById('screen-results').style.display = 'block';
-    document.getElementById('final-score').textContent      = score;
-    document.getElementById('progress-bar').style.width     = '100%';
+    document.getElementById('final-score').textContent = score;
+    document.getElementById('progress-bar').style.width = '100%';
 
     const pct = score / TOTAL;
-    let title, msg, sub;
 
-    if (pct === 1) {
-      title = `🏆 FLAWLESS VICTORY, ${playerName}!! 🏆`;
-      msg   = '🐉⚡ 100% PERFECT!! THE MATH DRAGONS BOW BEFORE YOU!! ⚡🐉';
-      sub   = '🌋 Volcanoes erupted with joy. Scientists wept. You are the chosen one of multiplication!!';
-    } else if (pct >= 0.9) {
-      title = `🔥 NEARLY UNSTOPPABLE, ${playerName}!! 🔥`;
-      msg   = '🚀 SO CLOSE TO PERFECTION YOUR PENCIL IS GLOWING!!';
-      sub   = '🦄 Unicorns are doing backflips for you!! Just a couple more to slay!!';
-    } else if (pct >= 0.75) {
-      title = `⚡ SHOCKING BRILLIANCE, ${playerName}!! ⚡`;
-      msg   = '🌟 Your brain is so powerful it knocked a satellite off course!!';
-      sub   = '🐲 The dragons are impressed. Keep training and you\'ll be UNSTOPPABLE!!';
-    } else if (pct >= 0.5) {
-      title = `💫 GREAT EFFORT, ${playerName}!! 💫`;
-      msg   = '🎸 You\'re like a rockstar who\'s still learning the solo — SO EPIC!!';
-      sub   = '🌈 Every mistake is just a dragon you haven\'t defeated YET!! Keep going!!';
-    } else {
-      title = `💪 WARRIOR IN TRAINING, ${playerName}!! 💪`;
-      msg   = '🥚 Even the greatest dragons hatched from an egg!! You\'re just getting started!!';
-      sub   = '⚡ Review the ones below, practice hard, and come back STRONGER THAN EVER!!';
+    // save stats to player
+    const p = getCurrentPlayer();
+    if (p) {
+      const updates = {
+        totalCorrect: (p.totalCorrect || 0) + score,
+        totalRounds:  (p.totalRounds  || 0) + 1,
+        streak: score === TOTAL ? (p.streak || 0) + 1 : 0,
+      };
+
+      if (isMasteryMode && masteryTable && !masteryFailed && score === TOTAL) {
+        // perfect mastery run — add pip (max 5)
+        const current = (p.mastery && p.mastery[masteryTable]) || 0;
+        if (current < 5) {
+          updates.mastery = { ...p.mastery, [masteryTable]: current + 1 };
+        } else {
+          updates.mastery = { ...p.mastery };
+        }
+      } else if (!isMasteryMode) {
+        updates.mastery = p.mastery; // unchanged for regular practice
+      }
+
+      updatePlayer(p.id, updates);
     }
 
-    document.getElementById('results-title').textContent  = title;
-    document.getElementById('result-message').textContent = msg;
-    document.getElementById('result-sub').textContent     = sub;
+    const masteryBanner = document.getElementById('mastery-result-banner');
+    masteryBanner.style.display = 'none';
+
+    if (isMasteryMode) {
+      const freshP = getCurrentPlayer();
+      const pips = (freshP && freshP.mastery && freshP.mastery[masteryTable]) || 0;
+
+      document.getElementById('results-title').textContent = masteryFailed
+        ? `💪 Not Quite — Keep Going!`
+        : score === TOTAL
+          ? `🏆 PERFECT MASTERY RUN!! 🏆`
+          : `⚡ So Close!!`;
+
+      if (!masteryFailed && score === TOTAL) {
+        masteryBanner.style.display = 'block';
+        if (pips >= 5) {
+          masteryBanner.innerHTML = `
+            <div style="font-size:1.3rem;font-weight:bold;color:#34c759;margin-bottom:8px;">🎉 TABLE MASTERED!! 🎉</div>
+            <div style="color:#ffd200;">You've completed the ×${masteryTable} table 5 times perfectly! YOU ARE A MATH CHAMPION!!</div>`;
+        } else {
+          masteryBanner.innerHTML = `
+            <div style="font-size:1.1rem;font-weight:bold;color:#ffd200;margin-bottom:8px;">🏆 Pip earned! ${pips}/5 on ×${masteryTable}</div>
+            <div style="color:#c9a0ff;">${5 - pips} more perfect run${5 - pips !== 1 ? 's' : ''} to master this table!</div>`;
+        }
+        document.getElementById('result-message').textContent = '🌟 FLAWLESS!! Zero mistakes on the mastery test!!';
+        document.getElementById('result-sub').textContent = 'Keep it up — you\'re becoming unstoppable!';
+      } else {
+        document.getElementById('result-message').textContent = masteryFailed
+          ? `One mistake ends the run. You answered ${score}/${TOTAL} correctly.`
+          : 'Try again for a perfect run!';
+        document.getElementById('result-sub').textContent = masteryFailed
+          ? 'No pips this time — review the answers below and try again!'
+          : '';
+      }
+    } else {
+      let title, msg, sub;
+      if (pct === 1) {
+        title = `🏆 FLAWLESS VICTORY, ${playerName}!! 🏆`;
+        msg   = '🐉⚡ 100% PERFECT!! THE MATH DRAGONS BOW BEFORE YOU!! ⚡🐉';
+        sub   = '🌋 Volcanoes erupted with joy. Scientists wept. You are the chosen one of multiplication!!';
+      } else if (pct >= 0.9) {
+        title = `🔥 NEARLY UNSTOPPABLE, ${playerName}!! 🔥`;
+        msg   = '🚀 SO CLOSE TO PERFECTION YOUR PENCIL IS GLOWING!!';
+        sub   = '🦄 Unicorns are doing backflips for you!! Just a couple more to slay!!';
+      } else if (pct >= 0.75) {
+        title = `⚡ SHOCKING BRILLIANCE, ${playerName}!! ⚡`;
+        msg   = '🌟 Your brain is so powerful it knocked a satellite off course!!';
+        sub   = '🐲 The dragons are impressed. Keep training and you\'ll be UNSTOPPABLE!!';
+      } else if (pct >= 0.5) {
+        title = `💫 GREAT EFFORT, ${playerName}!! 💫`;
+        msg   = '🎸 You\'re like a rockstar who\'s still learning the solo — SO EPIC!!';
+        sub   = '🌈 Every mistake is just a dragon you haven\'t defeated YET!! Keep going!!';
+      } else {
+        title = `💪 WARRIOR IN TRAINING, ${playerName}!! 💪`;
+        msg   = '🥚 Even the greatest dragons hatched from an egg!! You\'re just getting started!!';
+        sub   = '⚡ Review the ones below, practice hard, and come back STRONGER THAN EVER!!';
+      }
+      document.getElementById('results-title').textContent  = title;
+      document.getElementById('result-message').textContent = msg;
+      document.getElementById('result-sub').textContent     = sub;
+    }
 
     const missedSection = document.getElementById('missed-section');
     if (missed.length === 0) {
@@ -1163,6 +1953,105 @@
         </ul>`;
     }
   }
+
+  // ── Mastery Picker ─────────────────────────────────────────────────
+  let masterySelectedTable = null;
+
+  function renderMasteryPicker() {
+    const p = getCurrentPlayer();
+    const mastery = (p && p.mastery) ? p.mastery : {};
+
+    const grid = document.getElementById('mastery-table-grid');
+    grid.innerHTML = [2,3,4,5,6,7,8,9,10,11,12].map(n => {
+      const pips = mastery[n] || 0;
+      const isMastered = pips >= 5;
+      const isSelected = masterySelectedTable === n;
+      return `
+        <button class="mastery-table-btn ${isSelected ? 'selected' : ''} ${isMastered ? 'mastered' : ''}" data-mn="${n}">
+          ${isMastered ? '<span class="mastered-badge">🏆</span>' : ''}
+          ${n}
+        </button>`;
+    }).join('');
+
+    grid.querySelectorAll('.mastery-table-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        masterySelectedTable = parseInt(btn.dataset.mn);
+        renderMasteryPicker();
+        updateMasteryPipPreview();
+        document.getElementById('mastery-begin-btn').disabled = false;
+      });
+    });
+
+    updateMasteryPipPreview();
+  }
+
+  function updateMasteryPipPreview() {
+    const p = getCurrentPlayer();
+    const mastery = (p && p.mastery) ? p.mastery : {};
+    const pips = masterySelectedTable ? (mastery[masterySelectedTable] || 0) : 0;
+    const row = document.getElementById('mastery-pip-preview');
+    row.innerHTML = '';
+    for (let i = 0; i < 5; i++) {
+      const pip = document.createElement('span');
+      pip.className = 'mastery-pip' + (i < pips ? ' filled' : '');
+      row.appendChild(pip);
+    }
+    const lbl = document.createElement('span');
+    lbl.style.cssText = 'color:#c9a0ff;font-size:0.8rem;margin-left:6px;';
+    lbl.textContent = masterySelectedTable ? `${pips}/5` : '—';
+    row.appendChild(lbl);
+  }
+
+  document.getElementById('mastery-begin-btn').addEventListener('click', () => {
+    if (!masterySelectedTable) return;
+    startMasteryGame(masterySelectedTable);
+  });
+
+  // ── Progress Screen ────────────────────────────────────────────────
+  function renderProgress() {
+    const p = getCurrentPlayer();
+    if (!p) { showPlayers(); return; }
+
+    document.getElementById('progress-avatar').textContent = p.avatar;
+    document.getElementById('progress-name').textContent = p.name;
+
+    const mastery = p.mastery || {};
+    const masteredCount = Object.values(mastery).filter(v => v >= 5).length;
+
+    document.getElementById('progress-stats-badges').innerHTML = `
+      <div class="stat-badge">
+        <span class="badge-val">🔥${p.streak || 0}</span>
+        <span class="badge-lbl">Perfect Streak</span>
+      </div>
+      <div class="stat-badge">
+        <span class="badge-val">${p.totalCorrect || 0}</span>
+        <span class="badge-lbl">Total Correct</span>
+      </div>
+      <div class="stat-badge">
+        <span class="badge-val">🏆${masteredCount}</span>
+        <span class="badge-lbl">Tables Mastered</span>
+      </div>
+    `;
+
+    const grid = document.getElementById('mastery-progress-grid');
+    grid.innerHTML = [2,3,4,5,6,7,8,9,10,11,12].map(n => {
+      const pips = mastery[n] || 0;
+      const isMastered = pips >= 5;
+      const pipHtml = Array.from({length:5}, (_,i) =>
+        `<div class="mp-pip ${isMastered ? 'mastered-all' : (i < pips ? 'filled' : '')}"></div>`
+      ).join('');
+      return `
+        <div class="mp-row">
+          <span class="mp-label">×${n}</span>
+          <div class="mp-pips">${pipHtml}</div>
+          <span class="mp-status">${isMastered ? '🏆' : (pips > 0 ? '⭐'.repeat(pips > 3 ? 1 : 0) + `${pips}/5` : '')}</span>
+        </div>`;
+    }).join('');
+  }
+
+  // ── Init ───────────────────────────────────────────────────────────
+  // start on players screen
+  showPlayers();
 </script>
 </body>
 </html>
