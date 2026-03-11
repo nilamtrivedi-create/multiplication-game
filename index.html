@@ -477,6 +477,181 @@
       color: #34c759;
     }
 
+    /* ── Mario Game Scene ── */
+    .game-scene {
+      position: relative;
+      width: 100%;
+      height: 190px;
+      background: linear-gradient(180deg, #001a4d 0%, #003080 50%, #0050c0 100%);
+      border-radius: 18px 18px 0 0;
+      overflow: hidden;
+      margin-bottom: 0;
+    }
+    .scene-ground {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 28px;
+      background: linear-gradient(180deg, #3a9e00, #1a5200);
+      border-top: 3px solid #5cd400;
+    }
+    .scene-platform {
+      position: absolute;
+      height: 13px;
+      background: linear-gradient(180deg, #c8820a, #7a4800);
+      border-top: 3px solid #f0a020;
+      border-radius: 3px 3px 0 0;
+    }
+    .scene-pole {
+      position: absolute;
+      right: 38px;
+      bottom: 28px;
+      width: 5px;
+      height: 155px;
+      background: linear-gradient(90deg, #bbb, #fff, #bbb);
+      border-radius: 3px;
+      box-shadow: 0 0 6px rgba(255,255,255,0.25);
+    }
+    .scene-pole-base {
+      position: absolute;
+      right: 30px;
+      bottom: 28px;
+      width: 20px;
+      height: 9px;
+      background: #aaa;
+      border-radius: 4px;
+    }
+    .scene-flag {
+      position: absolute;
+      right: 28px;
+      bottom: 173px;
+      font-size: 1.5rem;
+      filter: drop-shadow(0 0 6px rgba(255,210,0,0.8));
+      animation: flag-wave 1.2s ease-in-out infinite alternate;
+      transform-origin: left center;
+    }
+    @keyframes flag-wave {
+      from { transform: rotate(-5deg); }
+      to   { transform: rotate(5deg) scaleX(0.9); }
+    }
+    .scene-star { position: absolute; width: 2px; height: 2px; background: white; border-radius: 50%; opacity: 0.7; }
+    .scene-cloud { position: absolute; font-size: 1.5rem; opacity: 0.3; }
+
+    .scene-character {
+      position: absolute;
+      font-size: 2rem;
+      transition: bottom 0.45s cubic-bezier(0.34,1.56,0.64,1), left 0.4s ease;
+      filter: drop-shadow(0 3px 6px rgba(0,0,0,0.5));
+      z-index: 10;
+      line-height: 1;
+    }
+    .scene-character.char-jump {
+      animation: char-jump 0.42s ease;
+    }
+    @keyframes char-jump {
+      0%   { transform: scaleY(0.85) scaleX(1.1); }
+      35%  { transform: scaleY(1.25) scaleX(0.85) translateY(-14px); }
+      100% { transform: scaleY(1) scaleX(1); }
+    }
+    .scene-character.char-wobble {
+      animation: char-wobble 0.38s ease;
+    }
+    @keyframes char-wobble {
+      0%,100% { transform: rotate(0); }
+      25%  { transform: rotate(-14deg) translateX(-3px); }
+      75%  { transform: rotate(12deg) translateX(3px); }
+    }
+    .scene-character.char-win {
+      animation: char-win 0.6s ease forwards;
+    }
+    @keyframes char-win {
+      0%   { transform: scale(1); }
+      40%  { transform: scale(1.5) rotate(-10deg); }
+      70%  { transform: scale(1.2) rotate(8deg); }
+      100% { transform: scale(1.3); }
+    }
+
+    .scene-coin {
+      position: absolute;
+      font-size: 1rem;
+      font-weight: bold;
+      pointer-events: none;
+      animation: coin-float 0.85s ease forwards;
+      z-index: 20;
+    }
+    @keyframes coin-float {
+      0%   { opacity: 1; transform: translateY(0) scale(1); }
+      70%  { opacity: 1; transform: translateY(-38px) scale(1.2); }
+      100% { opacity: 0; transform: translateY(-55px) scale(0.7); }
+    }
+    .scene-burst {
+      position: absolute;
+      inset: 0;
+      border-radius: 18px 18px 0 0;
+      pointer-events: none;
+      opacity: 0;
+    }
+    .scene-burst.pop {
+      animation: burst-pop 0.7s ease forwards;
+    }
+    @keyframes burst-pop {
+      0%   { opacity: 0; background: radial-gradient(ellipse at 75% 15%, rgba(255,210,0,0.5), transparent 55%); }
+      30%  { opacity: 1; }
+      100% { opacity: 0; }
+    }
+
+    .scene-badges {
+      position: absolute;
+      top: 8px; left: 10px;
+      display: flex; gap: 5px;
+    }
+    .scene-badge {
+      background: rgba(0,0,0,0.45);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 8px;
+      padding: 2px 8px;
+      font-size: 0.75rem;
+      font-weight: bold;
+    }
+    .scene-badge.gold { color: #ffd200; }
+    .scene-badge.fire { color: #ff9500; }
+
+    .combo-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(80,0,160,0.2);
+      border: 1px solid rgba(200,100,255,0.2);
+      border-top: none;
+      border-radius: 0 0 14px 14px;
+      padding: 7px 14px;
+      margin-bottom: 10px;
+    }
+    .combo-label { font-size: 0.75rem; color: #c9a0ff; white-space: nowrap; }
+    .combo-bar-bg { flex: 1; background: rgba(255,255,255,0.08); border-radius: 6px; height: 7px; overflow: hidden; }
+    .combo-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #ff6af7, #ffd200);
+      border-radius: 6px;
+      transition: width 0.35s ease;
+    }
+    .combo-count { font-size: 0.88rem; font-weight: bold; color: #ffd200; min-width: 32px; text-align: right; }
+
+    .affirmation-box {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(200,100,255,0.2);
+      border-radius: 10px;
+      padding: 7px 12px;
+      font-size: 0.82rem;
+      color: #c9a0ff;
+      text-align: center;
+      min-height: 30px;
+      margin-bottom: 10px;
+      font-style: italic;
+      transition: color 0.2s, border-color 0.2s;
+    }
+    .affirmation-box.aff-correct { border-color: rgba(52,199,89,0.4); color: #5de87a; }
+    .affirmation-box.aff-wrong   { border-color: rgba(255,59,48,0.4);  color: #ff7070; }
+
     /* ── Player Picker Screen ── */
     #screen-players { display: none; }
 
@@ -978,20 +1153,63 @@
 
   <!-- SCREEN 2: Game -->
   <div id="screen-game">
-    <button class="back-btn" id="back-btn">← Back</button>
-    <h1 id="game-title">⚡ Go! ⚡</h1>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+      <button class="back-btn" id="back-btn" style="margin-bottom:0;">← Back</button>
+      <span id="game-title" style="font-size:1rem;font-weight:bold;color:#ffd200;flex:1;text-align:center;"></span>
+    </div>
     <div id="mastery-mode-banner" class="mastery-mode-banner" style="display:none;">
       🏆 Mastery Test — zero errors needed! One mistake = try again.
     </div>
-    <div class="stats">
-      <span>Q <span id="q-num">1</span>/<span id="q-total">12</span></span>
-      <span>Score <span id="score">0</span></span>
-      <span>Streak <span id="streak">0</span> 🔥</span>
+
+    <!-- Mario Scene -->
+    <div class="game-scene" id="game-scene">
+      <!-- stars -->
+      <div class="scene-star" style="top:10%;left:8%"></div>
+      <div class="scene-star" style="top:20%;left:45%"></div>
+      <div class="scene-star" style="top:6%;left:72%"></div>
+      <div class="scene-star" style="top:30%;left:22%"></div>
+      <div class="scene-star" style="top:14%;left:60%"></div>
+      <!-- clouds -->
+      <div class="scene-cloud" style="top:12%;left:5%;">☁️</div>
+      <div class="scene-cloud" style="top:25%;left:48%;font-size:1.1rem;">☁️</div>
+      <!-- platforms -->
+      <div class="scene-platform" style="left:10px;right:80px;bottom:28px;"></div>
+      <div class="scene-platform" style="left:10px;width:130px;bottom:68px;"></div>
+      <div class="scene-platform" style="left:10px;width:100px;bottom:105px;"></div>
+      <div class="scene-platform" style="left:10px;width:72px;bottom:137px;"></div>
+      <div class="scene-platform" style="left:10px;width:50px;bottom:162px;"></div>
+      <!-- flagpole -->
+      <div class="scene-pole"></div>
+      <div class="scene-pole-base"></div>
+      <div class="scene-flag">🚩</div>
+      <!-- ground -->
+      <div class="scene-ground"></div>
+      <!-- character -->
+      <div class="scene-character" id="scene-char" style="bottom:34px;left:14px;">🐉</div>
+      <!-- scene UI -->
+      <div class="scene-badges">
+        <span class="scene-badge gold">⭐ <span id="scene-score">0</span></span>
+        <span class="scene-badge">Q <span id="scene-q">1</span>/<span id="scene-total">12</span></span>
+        <span class="scene-badge fire" id="scene-streak-badge" style="display:none;">🔥<span id="scene-streak">0</span></span>
+      </div>
+      <!-- burst overlay -->
+      <div class="scene-burst" id="scene-burst"></div>
+      <!-- coin container -->
+      <div id="scene-coins" style="position:absolute;inset:0;pointer-events:none;"></div>
     </div>
-    <div class="progress-bar-wrap">
-      <div class="progress-bar" id="progress-bar" style="width:0%"></div>
+
+    <!-- Combo bar -->
+    <div class="combo-row">
+      <span class="combo-label">🔥 Combo</span>
+      <div class="combo-bar-bg"><div class="combo-bar-fill" id="combo-fill" style="width:0%"></div></div>
+      <span class="combo-count" id="combo-count">×0</span>
     </div>
-    <div class="question-card">
+
+    <!-- Affirmation -->
+    <div class="affirmation-box" id="affirmation-box">Answer correctly and your character climbs to the flag! 🚩</div>
+
+    <!-- Question card -->
+    <div class="question-card" style="padding:20px 20px 14px;">
       <div class="question" id="question">3 × 4 = ?</div>
       <input class="answer-input" id="answer-input" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="?" autocomplete="off" readonly />
       <div class="numpad" id="numpad">
@@ -1008,7 +1226,6 @@
         <button class="np-btn" data-val="0">0</button>
         <button class="np-btn np-enter" data-val="enter">✓</button>
       </div>
-      <div class="feedback" id="feedback"></div>
     </div>
   </div>
 
@@ -1517,7 +1734,172 @@
     renderMasteryPicker();
   }
 
+  // ── Affirmations ──────────────────────────────────────────────────
+  const AFFIRMATIONS = {
+    normal: [
+      "🐉 The dragon leaps! Keep climbing!",
+      "🌟 One step closer to the flag!",
+      "⚡ Correct! Your character gains power!",
+      "🔥 Nice one! The flagpole gets closer!",
+      "💫 YES! Jump higher!",
+      "🚀 Perfect! Climbing fast!",
+      "🦄 Boom! Another step up!",
+      "🌈 Nailed it! The clouds are below you now!",
+      "🎯 Bullseye! Keep that momentum!",
+      "👾 MATH LASER fired! Character jumps!",
+      "🍕 Even the pizza cheered that answer!",
+      "🦕 A dino just cheered from the ground!",
+      "🎸 That answer ROCKED the flagpole!",
+      "🧠 Big brain activated! One more jump!",
+      "🌋 The mountain trembles! You're climbing!",
+      "🐬 Dolphins are doing backflips right now!",
+      "🦊 A clever fox approves of your math!",
+      "👑 Royalty-level answer right there!",
+      "🎪 The crowd goes WILD!!",
+      "🌠 You just launched a shooting star!",
+    ],
+    streak3: [
+      "🔥 3 IN A ROW — turbo boost activated!!",
+      "⚡ TRIPLE COMBO — sparks everywhere!!",
+      "🌟 3-streak! The flag is SHAKING with excitement!!",
+      "🚀 Turbo mode! You are UNSTOPPABLE!!",
+      "🦁 3 correct — the lion ROARS in your honor!!",
+    ],
+    streak5: [
+      "🔥🔥 5 IN A ROW — LEGENDARY CLIMBING!!",
+      "🌋 FIVE STREAK! The UNIVERSE is trembling!!",
+      "👑 5 PERFECT — A KING/QUEEN scales the pole!!",
+      "⚡⚡ THE POLE IS GLOWING FROM YOUR POWER!!",
+      "🧠🧠 DOUBLE BIG BRAIN — scientists are baffled!!",
+    ],
+    streak10: [
+      "🏆🔥 TEN IN A ROW — YOU ARE A MATH GOD!!",
+      "💥 DECADE COMBO — scientists have fainted!!",
+      "🐉🐉 FINAL FORM UNLOCKED — UNSTOPPABLE!!",
+      "🌌 THE COSMOS BOW BEFORE YOUR MATH SKILLS!!",
+    ],
+    wrong: [
+      "💪 Wobble but don't fall — you've got this!",
+      "🥊 One miss! Shake it off and climb on!",
+      "🎯 Almost! The flag is still waiting for you!",
+      "🛡️ A true champion learns from every miss!",
+      "⚡ Slip… but hold on tight and keep going!",
+      "🌈 Every dragon stumbles sometimes — keep flying!",
+      "🦊 Foxes always find another way up!",
+    ],
+    milestone: [
+      "🎉 HIGHER GROUND — next platform reached!!",
+      "🌟 NEW HEIGHT!! You're halfway there!!",
+      "🔥 LEVEL UP — higher than ever before!!",
+      "🏆 AMAZING — you can SEE the flag from here!!",
+      "🚩 SO CLOSE — one final push to the top!!",
+    ],
+    win: [
+      "🏆🎉 YOU REACHED THE FLAG!! INCREDIBLE!! 🏆🎉",
+      "🌟🚩 TOP OF THE POLE — MATH CHAMPION!! 🌟",
+      "🐉💥 THE FLAG IS YOURS!! UNSTOPPABLE LEGEND!!",
+    ],
+    mastery_win: [
+      "🏆 PERFECT MASTERY RUN!! THE FLAG IS CONQUERED!! 🏆",
+      "🌟 FLAWLESS!! Zero mistakes — a true master!! 🌟",
+      "🔥 PERFECT SCORE!! You are the CHOSEN ONE of multiplication!!",
+    ],
+  };
+  let lastAffirmation = '';
+  function pickAffirmation(type) {
+    const arr = AFFIRMATIONS[type] || AFFIRMATIONS.normal;
+    let pick;
+    do { pick = arr[Math.floor(Math.random() * arr.length)]; } while (pick === lastAffirmation && arr.length > 1);
+    lastAffirmation = pick;
+    return pick;
+  }
+
+  // ── Mario scene ───────────────────────────────────────────────────
+  // 5 stage heights (bottom px in scene, excluding ground offset)
+  const SCENE_STAGES = [
+    { bottom: 34,  left: 14 },   // ground
+    { bottom: 74,  left: 14 },   // plat 1
+    { bottom: 111, left: 14 },   // plat 2
+    { bottom: 143, left: 14 },   // plat 3
+    { bottom: 168, left: 14 },   // plat 4
+    { bottom: 183, left: 14 },   // top / flag
+  ];
+
+  function getSceneStage(sc, tot) {
+    const pct = sc / tot;
+    if (pct >= 1.0) return 5;
+    if (pct >= 0.8) return 4;
+    if (pct >= 0.6) return 3;
+    if (pct >= 0.4) return 2;
+    if (pct >= 0.2) return 1;
+    return 0;
+  }
+
+  function updateSceneCharacter(animated, win) {
+    const p = getCurrentPlayer();
+    const char = document.getElementById('scene-char');
+    if (!char) return;
+    // set avatar
+    char.textContent = p ? p.avatar : '🐉';
+    const st = SCENE_STAGES[getSceneStage(score, TOTAL)];
+    if (animated) {
+      char.classList.remove('char-jump','char-wobble','char-win');
+      void char.offsetWidth;
+      char.classList.add(win ? 'char-win' : 'char-jump');
+    }
+    char.style.bottom = st.bottom + 'px';
+    char.style.left   = st.left + 'px';
+  }
+
+  function updateSceneWobble() {
+    const char = document.getElementById('scene-char');
+    if (!char) return;
+    char.classList.remove('char-jump','char-wobble','char-win');
+    void char.offsetWidth;
+    char.classList.add('char-wobble');
+  }
+
+  function spawnSceneCoin(correct) {
+    const container = document.getElementById('scene-coins');
+    if (!container) return;
+    const st = SCENE_STAGES[getSceneStage(score, TOTAL)];
+    const coin = document.createElement('div');
+    coin.className = 'scene-coin';
+    coin.textContent = correct ? '+⭐' : '✗';
+    coin.style.left   = (st.left + 14) + 'px';
+    coin.style.bottom = (st.bottom + 30) + 'px';
+    coin.style.color  = correct ? '#ffd200' : '#ff4444';
+    container.appendChild(coin);
+    setTimeout(() => coin.remove(), 900);
+  }
+
+  function triggerSceneBurst() {
+    const burst = document.getElementById('scene-burst');
+    if (!burst) return;
+    burst.classList.remove('pop');
+    void burst.offsetWidth;
+    burst.classList.add('pop');
+    setTimeout(() => burst.classList.remove('pop'), 700);
+  }
+
+  function updateSceneUI() {
+    const el = id => document.getElementById(id);
+    el('scene-score').textContent = score;
+    el('scene-q').textContent     = currentQ + 1;
+    el('scene-total').textContent = TOTAL;
+    if (streak >= 3) {
+      el('scene-streak-badge').style.display = 'inline-block';
+      el('scene-streak').textContent = streak;
+    } else {
+      el('scene-streak-badge').style.display = 'none';
+    }
+    const pct = Math.min(streak / 10 * 100, 100);
+    el('combo-fill').style.width = pct + '%';
+    el('combo-count').textContent = streak > 0 ? `×${streak}` : '×0';
+  }
+
   // ── Game logic ────────────────────────────────────────────────────
+  const SUPER_TOTAL = 50;
   let TOTAL = 12;
   let selectedTables = [];
   let questions  = [];
@@ -1705,36 +2087,63 @@
   });
 
   // ── Start Game ─────────────────────────────────────────────────────
+  let isSuperMode = false;
+
   function startGame(masteryMode, tableNum) {
     isMasteryMode = masteryMode;
     masteryTable  = tableNum || null;
     masteryFailed = false;
+    isSuperMode   = !masteryMode && selectedTables.length === 11; // all 2-12 selected
 
     const p = getCurrentPlayer();
     playerName = p ? p.name : 'Player';
 
     score = 0; streak = 0; currentQ = 0; missed = [];
+    lastAffirmation = '';
 
     if (masteryMode) {
-      // single table, all 12 in order
       questions = [];
       for (let i = 1; i <= 12; i++) questions.push([tableNum, i]);
-      // shuffle for fun
       for (let i = questions.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [questions[i], questions[j]] = [questions[j], questions[i]];
       }
+    } else if (isSuperMode) {
+      // Build a 50-question pool from all tables, shuffled
+      const pool = [];
+      for (let n = 2; n <= 12; n++) for (let i = 1; i <= 12; i++) pool.push([n, i]);
+      for (let i = pool.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [pool[i], pool[j]] = [pool[j], pool[i]];
+      }
+      questions = pool.slice(0, SUPER_TOTAL);
     } else {
       questions = generateQuestions();
     }
 
     TOTAL = questions.length;
-    document.getElementById('q-total').textContent     = TOTAL;
     document.getElementById('final-total').textContent = TOTAL;
     document.getElementById('game-title').textContent  = masteryMode
       ? `🏆 Mastery: ×${tableNum}`
-      : `⚡ Go, ${playerName}! ⚡`;
+      : isSuperMode
+        ? `🔥 Super Challenge!`
+        : `⚡ Go, ${playerName}!`;
     document.getElementById('mastery-mode-banner').style.display = masteryMode ? 'block' : 'none';
+
+    // init scene character
+    const p2 = getCurrentPlayer();
+    const char = document.getElementById('scene-char');
+    if (char) {
+      char.textContent = p2 ? p2.avatar : '🐉';
+      char.classList.remove('char-jump','char-wobble','char-win');
+      const st = SCENE_STAGES[0];
+      char.style.bottom = st.bottom + 'px';
+      char.style.left   = st.left + 'px';
+    }
+
+    // init affirmation
+    const aff = document.getElementById('affirmation-box');
+    if (aff) { aff.className = 'affirmation-box'; aff.textContent = 'Answer correctly and your character climbs to the flag! 🚩'; }
 
     hideAllScreens();
     document.getElementById('screen-game').style.display = 'block';
@@ -1758,17 +2167,12 @@
   function showQuestion() {
     answered = false;
     const [a, b] = questions[currentQ];
-    document.getElementById('question').textContent     = `${a} × ${b} = ?`;
-    document.getElementById('q-num').textContent        = currentQ + 1;
-    document.getElementById('score').textContent        = score;
-    document.getElementById('streak').textContent       = streak;
-    document.getElementById('progress-bar').style.width = (currentQ / TOTAL * 100) + '%';
+    document.getElementById('question').textContent = `${a} × ${b} = ?`;
+    updateSceneUI();
     const input = document.getElementById('answer-input');
     input.value = ''; input.className = 'answer-input'; input.disabled = false;
     document.getElementById('numpad').style.opacity = '1';
     document.getElementById('numpad').style.pointerEvents = 'auto';
-    document.getElementById('feedback').textContent = '';
-    document.getElementById('feedback').className = 'feedback';
   }
 
   function submitAnswer() {
@@ -1783,59 +2187,52 @@
     document.getElementById('numpad').style.opacity = '0.4';
     document.getElementById('numpad').style.pointerEvents = 'none';
 
-    const feedback = document.getElementById('feedback');
+    const aff = document.getElementById('affirmation-box');
 
     if (val === correct) {
+      const prevStage = getSceneStage(score, TOTAL);
       score++; streak++;
+      const newStage  = getSceneStage(score, TOTAL);
+      const milestone = newStage > prevStage;
+      const isWin     = score >= TOTAL;
+
       input.classList.add('correct');
-      if (isMasteryMode) {
-        feedback.textContent = '✓ Perfect!';
-        feedback.className = 'feedback correct';
-      } else {
-        const msgs = [
-          '⚡ CORRECT! The math gods are PLEASED!',
-          '🐉 A dragon just high-fived you!!',
-          '🔥 YOUR BRAIN IS LITERALLY ON FIRE!',
-          '🌟 WIZARDRY! Pure number wizardry!!',
-          '💫 Scientists are baffled by your genius!',
-          '🚀 Houston, we have a CORRECT ANSWER!',
-          '🦄 A unicorn appeared because you got it right!',
-          '👾 MATH LASER ACTIVATED!! PEW PEW!!',
-          '🎸 That answer SHREDDED!! 🤘',
-          '🍕 Even the pizza is impressed!!',
-          '🦕 A dinosaur roared in your honour!!',
-          '🌈 RAINBOWS ARE BURSTING EVERYWHERE!!',
-          '🧠 Your brain has EVOLVED to a new level!!',
-          '🏆 KINGS AND QUEENS CHEER YOUR NAME!!',
-          '🌋 A VOLCANO ERUPTED WITH HAPPINESS!!',
-        ];
-        feedback.textContent = streak >= 3
-          ? `🔥 ${streak} IN A ROW!! THE UNIVERSE IS TREMBLING!!`
-          : msgs[Math.floor(Math.random() * msgs.length)];
-        feedback.className = 'feedback correct';
-      }
+
+      // pick affirmation tier
+      let affType = 'normal';
+      if (isWin)       affType = isMasteryMode ? 'mastery_win' : 'win';
+      else if (milestone) affType = 'milestone';
+      else if (streak >= 10) affType = 'streak10';
+      else if (streak >= 5)  affType = 'streak5';
+      else if (streak >= 3)  affType = 'streak3';
+
+      if (aff) { aff.className = 'affirmation-box aff-correct'; aff.textContent = pickAffirmation(affType); }
+
+      spawnSceneCoin(true);
+      updateSceneCharacter(true, isWin);
+      if (milestone) setTimeout(triggerSceneBurst, 200);
+      updateSceneUI();
+
     } else {
       streak = 0;
       missed.push({ q: `${a} × ${b}`, correct, given: val });
       input.classList.add('wrong');
       if (isMasteryMode) {
         masteryFailed = true;
-        feedback.textContent = `✗ Oops! ${a} × ${b} = ${correct}`;
-        feedback.className = 'feedback wrong';
+        if (aff) { aff.className = 'affirmation-box aff-wrong'; aff.textContent = `✗ Oops! ${a} × ${b} = ${correct} — mastery attempt ended`; }
       } else {
-        feedback.textContent = `Not quite — the answer is ${correct}`;
-        feedback.className = 'feedback wrong';
+        if (aff) { aff.className = 'affirmation-box aff-wrong'; aff.textContent = pickAffirmation('wrong') + ` (${a}×${b}=${correct})`; }
       }
+      spawnSceneCoin(false);
+      updateSceneWobble();
+      updateSceneUI();
     }
-
-    document.getElementById('score').textContent  = score;
-    document.getElementById('streak').textContent = streak;
 
     const delay = (isMasteryMode && masteryFailed) ? 2000 : 1300;
     setTimeout(() => {
       currentQ++;
       if (currentQ >= TOTAL) showResults();
-      else if (isMasteryMode && masteryFailed) showResults(); // end immediately on fail
+      else if (isMasteryMode && masteryFailed) showResults();
       else showQuestion();
     }, delay);
   }
