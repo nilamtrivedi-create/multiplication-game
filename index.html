@@ -346,7 +346,53 @@
     }
     .study-row:last-child { border-bottom: none; }
     .study-row .eq  { color: #c9a0ff; }
-    .study-row .ans { font-weight: bold; color: #ffd200; font-size: 1.05rem; }
+    .study-row .ans {
+      font-weight: bold; color: #ffd200; font-size: 1.05rem;
+      min-width: 36px; text-align: right;
+      cursor: pointer;
+      transition: all 0.18s;
+    }
+    .study-row .ans.covered {
+      background: rgba(200,100,255,0.25);
+      border-radius: 6px;
+      color: transparent;
+      padding: 1px 10px;
+      border: 1px dashed rgba(200,100,255,0.4);
+      user-select: none;
+    }
+    .study-row .ans.covered:hover {
+      background: rgba(255,210,0,0.2);
+      border-color: #ffd200;
+    }
+
+    .cover-toggle-btn {
+      background: linear-gradient(90deg, #af52de, #ff6af7);
+      color: white;
+      font-size: 0.95rem;
+      font-weight: bold;
+      border: none;
+      padding: 10px 22px;
+      border-radius: 22px;
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s;
+      margin: 6px;
+      box-shadow: 0 4px 16px rgba(175,82,222,0.4);
+    }
+    .cover-toggle-btn:hover { transform: scale(1.05); box-shadow: 0 6px 22px rgba(255,106,247,0.5); }
+
+    .show-all-btn {
+      background: rgba(255,255,255,0.08);
+      border: 2px solid rgba(255,210,0,0.4);
+      color: #ffd200;
+      font-size: 0.95rem;
+      font-weight: bold;
+      padding: 9px 22px;
+      border-radius: 22px;
+      cursor: pointer;
+      transition: all 0.15s;
+      margin: 6px;
+    }
+    .show-all-btn:hover { background: rgba(255,210,0,0.15); border-color: #ffd200; }
 
     .study-hint {
       color: #c9a0ff;
@@ -474,7 +520,11 @@
   <div id="screen-study">
     <button class="back-btn" id="study-back-btn">← Back to Main</button>
     <h1>📖 Study Guide</h1>
-    <p class="study-hint">Select tables on the main page to see only those, or view all 2–12 here.</p>
+    <p class="study-hint"></p>
+    <div style="margin-bottom:14px;">
+      <button class="cover-toggle-btn" id="cover-toggle-btn">🙈 Cover Answers</button>
+      <button class="show-all-btn" id="show-all-btn" style="display:none;">👁 Show All Answers</button>
+    </div>
     <div class="study-grid" id="study-grid"></div>
     <br>
     <button class="study-btn" id="study-play-btn">▶ Ready — Start Game!</button>
@@ -804,19 +854,24 @@
     document.getElementById('screen-study').style.display   = 'none';
   }
 
+  let coverMode = false;
+
   function showStudy() {
-    // Use selected tables if any, otherwise show all 2–12
     const tables = selectedTables.length > 0
       ? [...selectedTables].sort((a,b) => a - b)
       : [2,3,4,5,6,7,8,9,10,11,12];
 
-    const hint = document.querySelector('.study-hint');
-    hint.textContent = selectedTables.length > 0
-      ? `Showing your selected table${tables.length > 1 ? 's' : ''}: ${tables.join(', ')}`
+    document.querySelector('.study-hint').textContent = selectedTables.length > 0
+      ? `Showing table${tables.length > 1 ? 's' : ''}: ${tables.join(', ')}`
       : 'Showing all tables 2–12 (select specific tables on the main page to filter)';
 
-    const playBtn = document.getElementById('study-play-btn');
-    playBtn.textContent = selectedTables.length > 0 ? '▶ Ready — Start Game!' : '← Pick tables first';
+    document.getElementById('study-play-btn').textContent =
+      selectedTables.length > 0 ? '▶ Ready — Start Game!' : '← Pick tables first';
+
+    // Reset cover mode each time we open study guide
+    coverMode = false;
+    document.getElementById('cover-toggle-btn').textContent = '🙈 Cover Answers';
+    document.getElementById('show-all-btn').style.display = 'none';
 
     const grid = document.getElementById('study-grid');
     grid.innerHTML = tables.map(n => `
@@ -826,15 +881,52 @@
           <div class="study-row">
             <span class="eq">${n} × ${i}</span>
             <span style="color:#c9a0ff">=</span>
-            <span class="ans">${n * i}</span>
+            <span class="ans" data-val="${n * i}">${n * i}</span>
           </div>`).join('')}
       </div>`).join('');
+
+    // Click individual answer to reveal when covered
+    grid.querySelectorAll('.ans').forEach(el => {
+      el.addEventListener('click', () => {
+        if (coverMode && el.classList.contains('covered')) {
+          el.classList.remove('covered');
+          el.textContent = el.dataset.val;
+        }
+      });
+    });
 
     document.getElementById('screen-choose').style.display  = 'none';
     document.getElementById('screen-game').style.display    = 'none';
     document.getElementById('screen-results').style.display = 'none';
     document.getElementById('screen-study').style.display   = 'block';
   }
+
+  document.getElementById('cover-toggle-btn').addEventListener('click', () => {
+    coverMode = !coverMode;
+    const btn = document.getElementById('cover-toggle-btn');
+    const showAllBtn = document.getElementById('show-all-btn');
+    document.querySelectorAll('.ans').forEach(el => {
+      if (coverMode) {
+        el.classList.add('covered');
+        el.textContent = '?';
+      } else {
+        el.classList.remove('covered');
+        el.textContent = el.dataset.val;
+      }
+    });
+    btn.textContent = coverMode ? '👁 Uncover All' : '🙈 Cover Answers';
+    showAllBtn.style.display = coverMode ? 'inline-block' : 'none';
+  });
+
+  document.getElementById('show-all-btn').addEventListener('click', () => {
+    document.querySelectorAll('.ans').forEach(el => {
+      el.classList.remove('covered');
+      el.textContent = el.dataset.val;
+    });
+    coverMode = false;
+    document.getElementById('cover-toggle-btn').textContent = '🙈 Cover Answers';
+    document.getElementById('show-all-btn').style.display = 'none';
+  });
 
   function startGame() {
     playerName = document.getElementById('player-name').value.trim() || 'Player';
